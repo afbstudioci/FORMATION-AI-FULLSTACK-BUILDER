@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { socket } from '../services/socket';
 import Alert from '../components/Alert';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
@@ -12,12 +13,18 @@ export const AuthProvider = ({ children }) => {
     const checkUser = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        const storedUser = localStorage.getItem('userData');
-        if (token && storedUser) {
-          setUser(JSON.parse(storedUser));
+        if (token) {
+          // On récupère le profil frais depuis le serveur pour synchroniser la photo, le rôle, etc.
+          const { data } = await api.get('/users/profile');
+          const userData = { ...data.user, accessToken: token };
+          setUser(userData);
+          localStorage.setItem('userData', JSON.stringify(userData));
         }
       } catch (error) {
-        console.error("Auth check failed", error);
+        console.error("Auth check failed, user might be logged out", error);
+        // Si le refresh échoue, on peut garder ce qu'on a en local ou vider
+        const storedUser = localStorage.getItem('userData');
+        if (storedUser) setUser(JSON.parse(storedUser));
       } finally {
         setLoading(false);
       }
