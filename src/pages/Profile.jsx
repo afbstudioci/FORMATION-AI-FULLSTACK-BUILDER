@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Edit2, Shield, Award, Zap, Target, BarChart3, Activity, Settings, Save, LogOut, Hash, Mail, User as UserIcon, CheckCircle2, TrendingUp, BookOpen, Clock } from 'lucide-react';
+import { Camera, Edit2, Shield, Award, Zap, Target, BarChart3, Activity, Settings, Save, LogOut, Hash, Mail, User as UserIcon, CheckCircle2, TrendingUp, BookOpen, Clock, X } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import api from '../services/api';
 import { theme } from '../theme';
