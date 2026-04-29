@@ -60,14 +60,21 @@ const Layout = () => {
             </button>
           )}
 
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px',
-            padding: '6px 12px',
-            background: theme.colors.background,
-            borderRadius: theme.borderRadius.medium
-          }}>
+          <div 
+            onClick={() => navigate('/profile')}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px',
+              padding: '6px 12px',
+              background: theme.colors.background,
+              borderRadius: theme.borderRadius.medium,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#f0f0f0'}
+            onMouseOut={(e) => e.currentTarget.style.background = theme.colors.background}
+          >
             <div style={{ 
               width: '32px', 
               height: '32px', 
@@ -78,9 +85,14 @@ const Layout = () => {
               justifyContent: 'center',
               color: 'white',
               fontSize: '0.8rem',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              overflow: 'hidden'
             }}>
-              {user?.fullname?.charAt(0).toUpperCase()}
+              {user?.profilePic ? (
+                <img src={user.profilePic} alt="P" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                user?.fullname?.charAt(0).toUpperCase()
+              )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: '0.85rem', fontWeight: '700', color: theme.colors.text }}>{user?.fullname}</span>

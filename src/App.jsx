@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import ExamSession from './pages/ExamSession';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSubmissions from './pages/AdminSubmissions';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           }>
             <Route index element={<Dashboard />} />
             <Route path="exam/:id" element={<ExamSession />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
 
           <Route path="/admin" element={
