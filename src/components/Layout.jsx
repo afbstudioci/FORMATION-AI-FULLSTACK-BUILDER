@@ -37,7 +37,7 @@ const Layout = () => {
             <GraduationCap color="white" size={24} />
           </div>
           <h1 style={{ fontSize: '1.25rem', color: theme.colors.text, fontWeight: '800', letterSpacing: '-0.5px' }}>
-            LMS<span style={{ color: theme.colors.primary }}>EXAM</span>
+            AFB<span style={{ color: theme.colors.primary }}>EXAM</span>
           </h1>
         </div>
 

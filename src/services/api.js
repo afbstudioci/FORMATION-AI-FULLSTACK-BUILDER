@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // URL du backend (sera a mettre a jour avec l'URL Render une fois le deploiement fini)
-const API_URL = "https://formation-afb-backend.onrender.com/api"; 
+const API_URL = import.meta.env.VITE_API_URL || "https://formation-afb-backend.onrender.com/api"; 
 
 const api = axios.create({
   baseURL: API_URL,

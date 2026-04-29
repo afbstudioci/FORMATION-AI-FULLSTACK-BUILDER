@@ -80,7 +80,7 @@ const Login = () => {
               <input 
                 type="text"
                 required
-                placeholder="LMS-2024-XXXX"
+                placeholder="Votre matricule"
                 value={formData.matricule}
                 onChange={(e) => setFormData({...formData, matricule: e.target.value})}
                 style={{
