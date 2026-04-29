@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Plus, Trash2, Save, Calendar, Clock } from 'lucide-react';
+import { X, Plus, Trash2, Save, Calendar, Clock, CheckCircle2 } from 'lucide-react';
 import api from '../services/api';
 import { theme } from '../theme';
 
@@ -10,13 +10,13 @@ const CreateExamModal = ({ onClose, onCreated }) => {
     description: '',
     startTime: '',
     endTime: '',
-    questions: [{ text: '', options: ['', '', '', ''], correctAnswer: '' }]
+    questions: [{ text: '', options: ['', ''], correctAnswer: '' }]
   });
 
   const addQuestion = () => {
     setFormData({
       ...formData,
-      questions: [...formData.questions, { text: '', options: ['', '', '', ''], correctAnswer: '' }]
+      questions: [...formData.questions, { text: '', options: ['', ''], correctAnswer: '' }]
     });
   };
 
@@ -31,6 +31,27 @@ const CreateExamModal = ({ onClose, onCreated }) => {
     setFormData({ ...formData, questions: newQuestions });
   };
 
+  const addOption = (qIndex) => {
+    const newQuestions = [...formData.questions];
+    newQuestions[qIndex].options.push('');
+    setFormData({ ...formData, questions: newQuestions });
+  };
+
+  const removeOption = (qIndex, oIndex) => {
+    const newQuestions = [...formData.questions];
+    if (newQuestions[qIndex].options.length <= 2) return;
+    
+    const removedOption = newQuestions[qIndex].options[oIndex];
+    newQuestions[qIndex].options.splice(oIndex, 1);
+    
+    // Si l'option supprimee etait la bonne reponse, on reset
+    if (newQuestions[qIndex].correctAnswer === removedOption) {
+      newQuestions[qIndex].correctAnswer = '';
+    }
+    
+    setFormData({ ...formData, questions: newQuestions });
+  };
+
   const updateOption = (qIndex, oIndex, value) => {
     const newQuestions = [...formData.questions];
     newQuestions[qIndex].options[oIndex] = value;
@@ -39,9 +60,8 @@ const CreateExamModal = ({ onClose, onCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validation basique
-    if (formData.questions.some(q => !q.correctAnswer)) {
-      alert("Veuillez selectionner une bonne reponse pour chaque question");
+    if (formData.questions.some(q => !q.correctAnswer || q.options.some(opt => opt.trim() === ''))) {
+      alert("Veuillez remplir toutes les questions, options et selectionner une bonne reponse.");
       return;
     }
 
@@ -69,120 +89,56 @@ const CreateExamModal = ({ onClose, onCreated }) => {
         <form onSubmit={handleSubmit} style={{ flex: 1, overflowY: 'auto', padding: '40px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '40px' }}>
             <div style={{ gridColumn: 'span 2' }}>
-              <label style={{ display: 'block', fontWeight: '800', marginBottom: '10px', fontSize: '0.9rem', color: theme.colors.text }}>TITRE DU TP / DEVOIR</label>
-              <input 
-                type="text" 
-                required 
-                placeholder="Ex: Examen Final React JS"
-                value={formData.title} 
-                onChange={e => setFormData({...formData, title: e.target.value})} 
-                style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '1rem', outline: 'none' }}
-              />
+              <label style={{ display: 'block', fontWeight: '800', marginBottom: '10px', fontSize: '0.85rem', color: theme.colors.text }}>TITRE DU TP / DEVOIR</label>
+              <input type="text" required placeholder="Ex: Examen Final React JS" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '1rem', outline: 'none' }} />
             </div>
             <div style={{ gridColumn: 'span 2' }}>
-              <label style={{ display: 'block', fontWeight: '800', marginBottom: '10px', fontSize: '0.9rem', color: theme.colors.text }}>DESCRIPTION COURTE</label>
-              <textarea 
-                value={formData.description} 
-                placeholder="Consignes particulieres..."
-                onChange={e => setFormData({...formData, description: e.target.value})} 
-                style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '1rem', minHeight: '80px', outline: 'none', resize: 'vertical' }}
-              />
+              <label style={{ display: 'block', fontWeight: '800', marginBottom: '10px', fontSize: '0.85rem', color: theme.colors.text }}>DESCRIPTION</label>
+              <textarea value={formData.description} placeholder="Consignes..." onChange={e => setFormData({...formData, description: e.target.value})} style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '1rem', minHeight: '80px', outline: 'none', resize: 'vertical' }} />
             </div>
             <div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '800', marginBottom: '10px', fontSize: '0.9rem', color: theme.colors.success }}>
-                <Calendar size={16} /> DEBUT OFFICIEL
-              </label>
-              <input 
-                type="datetime-local" 
-                required 
-                value={formData.startTime} 
-                onChange={e => setFormData({...formData, startTime: e.target.value})} 
-                style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '1rem' }}
-              />
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '800', marginBottom: '10px', fontSize: '0.85rem', color: theme.colors.success }}><Calendar size={16} /> DEBUT</label>
+              <input type="datetime-local" required value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})} style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '1rem' }} />
             </div>
             <div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '800', marginBottom: '10px', fontSize: '0.9rem', color: theme.colors.error }}>
-                <Clock size={16} /> FIN DE SESSION
-              </label>
-              <input 
-                type="datetime-local" 
-                required 
-                value={formData.endTime} 
-                onChange={e => setFormData({...formData, endTime: e.target.value})} 
-                style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '1rem' }}
-              />
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '800', marginBottom: '10px', fontSize: '0.85rem', color: theme.colors.error }}><Clock size={16} /> FIN</label>
+              <input type="datetime-local" required value={formData.endTime} onChange={e => setFormData({...formData, endTime: e.target.value})} style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontSize: '1rem' }} />
             </div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', borderTop: `1px solid ${theme.colors.border}`, paddingTop: '30px' }}>
             <h3 style={{ fontWeight: '900', fontSize: '1.2rem' }}>Questions ({formData.questions.length})</h3>
-            <button 
-              type="button" 
-              onClick={addQuestion} 
-              style={{ background: theme.colors.secondary, color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}
-            >
-              <Plus size={18} /> Ajouter une question
-            </button>
+            <button type="button" onClick={addQuestion} style={{ background: theme.colors.secondary, color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}><Plus size={18} /> Ajouter une question</button>
           </div>
 
           {formData.questions.map((q, qIdx) => (
-            <div key={qIdx} style={{ background: theme.colors.background, padding: '25px', borderRadius: '16px', marginBottom: '25px', border: `1px solid ${theme.colors.border}` }}>
+            <div key={qIdx} style={{ background: theme.colors.background, padding: '25px', borderRadius: '16px', marginBottom: '30px', border: `1px solid ${theme.colors.border}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
-                <span style={{ fontWeight: '900', color: theme.colors.primary, fontSize: '1rem' }}># QUESTION {qIdx + 1}</span>
-                {formData.questions.length > 1 && (
-                  <button type="button" onClick={() => removeQuestion(qIdx)} style={{ color: theme.colors.error, background: 'white', padding: '8px', borderRadius: '8px' }}><Trash2 size={18} /></button>
-                )}
+                <span style={{ fontWeight: '900', color: theme.colors.primary }}>QUESTION {qIdx + 1}</span>
+                <button type="button" onClick={() => removeQuestion(qIdx)} style={{ color: theme.colors.error, background: 'white', padding: '8px', borderRadius: '8px', border: 'none' }}><Trash2 size={18} /></button>
               </div>
-              <input 
-                placeholder="Libelle de la question..." 
-                required 
-                value={q.text} 
-                onChange={e => updateQuestion(qIdx, 'text', e.target.value)} 
-                style={{ width: '100%', padding: '14px', marginBottom: '20px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontWeight: '600' }}
-              />
-              <p style={{ fontSize: '0.75rem', fontWeight: '800', color: theme.colors.textLight, marginBottom: '10px', textTransform: 'uppercase' }}>Options de reponses (Cochez la bonne reponse)</p>
+              <input placeholder="Libelle de la question..." required value={q.text} onChange={e => updateQuestion(qIdx, 'text', e.target.value)} style={{ width: '100%', padding: '14px', marginBottom: '20px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, fontWeight: '600' }} />
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: '800', color: theme.colors.textLight, textTransform: 'uppercase' }}>Options (Cochez la bonne)</p>
+                <button type="button" onClick={() => addOption(qIdx)} style={{ fontSize: '0.75rem', background: theme.colors.primary, color: 'white', padding: '5px 10px', borderRadius: '5px', border: 'none', fontWeight: '700' }}>+ Option</button>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                 {q.options.map((opt, oIdx) => (
                   <div key={oIdx} style={{ display: 'flex', gap: '10px', alignItems: 'center', background: 'white', padding: '10px', borderRadius: '10px', border: `1px solid ${theme.colors.border}` }}>
-                    <input 
-                      type="radio" 
-                      name={`correct-${qIdx}`} 
-                      required 
-                      checked={q.correctAnswer === opt && opt !== ''} 
-                      onChange={() => updateQuestion(qIdx, 'correctAnswer', opt)} 
-                      style={{ width: '18px', height: '18px', accentColor: theme.colors.success }}
-                    />
-                    <input 
-                      placeholder={`Option ${oIdx + 1}`} 
-                      required 
-                      value={opt} 
-                      onChange={e => updateOption(qIdx, oIdx, e.target.value)} 
-                      style={{ flex: 1, border: 'none', outline: 'none', fontSize: '0.9rem', fontWeight: '500' }}
-                    />
+                    <input type="radio" name={`correct-${qIdx}`} required checked={q.correctAnswer === opt && opt !== ''} onChange={() => updateQuestion(qIdx, 'correctAnswer', opt)} style={{ width: '18px', height: '18px', accentColor: theme.colors.success }} />
+                    <input placeholder={`Option ${oIdx + 1}`} required value={opt} onChange={e => updateOption(qIdx, oIdx, e.target.value)} style={{ flex: 1, border: 'none', outline: 'none', fontSize: '0.9rem' }} />
+                    {q.options.length > 2 && (
+                      <button type="button" onClick={() => removeOption(qIdx, oIdx)} style={{ color: theme.colors.error, background: 'none', border: 'none', padding: '2px' }}><X size={14} /></button>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
           ))}
 
-          <button 
-            type="submit" 
-            style={{ 
-              width: '100%', 
-              padding: '18px', 
-              background: theme.colors.primary, 
-              color: 'white', 
-              borderRadius: '12px', 
-              fontWeight: '900', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              gap: '12px', 
-              marginTop: '10px',
-              fontSize: '1.1rem',
-              boxShadow: `0 10px 25px ${theme.colors.primary}40`
-            }}
-          >
+          <button type="submit" style={{ width: '100%', padding: '18px', background: theme.colors.primary, color: 'white', borderRadius: '12px', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '10px', fontSize: '1.1rem', boxShadow: `0 10px 25px ${theme.colors.primary}40` }}>
             <Save size={22} /> PUBLIER L'EPREUVE
           </button>
         </form>

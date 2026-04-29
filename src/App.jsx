@@ -7,14 +7,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ExamSession from './pages/ExamSession';
-
-// Placeholder pour les vues Admin restantes
-const Placeholder = ({ title }) => (
-  <div className="fade-in" style={{ padding: '30px', background: 'white', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-    <h2 style={{ color: '#2d3436', fontWeight: '800' }}>{title}</h2>
-    <p style={{ color: '#636e72', marginTop: '10px' }}>Cette interface sera disponible dans la prochaine vague de developpement.</p>
-  </div>
-);
+import AdminDashboard from './pages/AdminDashboard';
+import AdminSubmissions from './pages/AdminSubmissions';
 
 function App() {
   return (
@@ -38,8 +32,8 @@ function App() {
               <Layout />
             </ProtectedRoute>
           }>
-            <Route index element={<Placeholder title="Panel Administrateur" />} />
-            <Route path="submissions" element={<Placeholder title="Gestion des copies" />} />
+            <Route index element={<AdminDashboard />} />
+            <Route path="submissions" element={<AdminSubmissions />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
