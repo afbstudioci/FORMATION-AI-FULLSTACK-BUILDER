@@ -55,20 +55,13 @@ const ExamSession = () => {
   useEffect(() => {
     const fetchExam = async () => {
       try {
-        // Verifier si deja soumis
-        const { data: mySubmissions } = await api.get('/submissions/my');
-        if (mySubmissions.some(s => s.exam?._id === id)) {
-          setInfo({ message: "Vous avez deja compose pour cet examen. Tentative unique autorisee.", type: 'error' });
-          setTimeout(() => navigate('/'), 3000);
-          return;
-        }
-
         const { data } = await api.get(`/exams/${id}`);
         setExam(data);
         setAnswers(data.questions.map(q => ({ questionId: q._id, selectedOption: null })));
       } catch (err) {
-        setInfo({ message: "Impossible de charger l'examen", type: 'error' });
-        setTimeout(() => navigate('/'), 2000);
+        const message = err.response?.data?.message || "Impossible de charger l'examen";
+        setInfo({ message, type: 'error' });
+        setTimeout(() => navigate('/'), 3000);
       } finally {
         setLoading(false);
       }

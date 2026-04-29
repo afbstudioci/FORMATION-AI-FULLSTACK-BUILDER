@@ -48,7 +48,7 @@ const AdminSubmissions = () => {
       link.click();
       link.remove();
     } catch (err) {
-      setError("Erreur lors de la generation du PDF");
+      setError("Erreur lors de la génération du PDF");
     }
   };
 
@@ -100,24 +100,23 @@ const AdminSubmissions = () => {
 
       {/* Table des copies */}
       <div style={{ 
-        background: 'white', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.soft, 
-        border: `1px solid ${theme.colors.border}`, overflowX: 'auto' 
+        background: 'white', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.soft, overflowX: 'auto'
       }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
           <thead>
-            <tr style={{ background: '#fcfcfc', borderBottom: `1px solid ${theme.colors.border}` }}>
-              <th style={{ padding: '20px', fontWeight: '800', color: theme.colors.textLight, fontSize: '0.85rem' }}>ETUDIANT</th>
-              <th style={{ padding: '20px', fontWeight: '800', color: theme.colors.textLight, fontSize: '0.85rem' }}>MATRICULE</th>
-              <th style={{ padding: '20px', fontWeight: '800', color: theme.colors.textLight, fontSize: '0.85rem' }}>SCORE</th>
-              <th style={{ padding: '20px', fontWeight: '800', color: theme.colors.textLight, fontSize: '0.85rem' }}>DATE RENDUE</th>
-              <th style={{ padding: '20px', fontWeight: '800', color: theme.colors.textLight, fontSize: '0.85rem', textAlign: 'right' }}>ACTIONS</th>
+            <tr style={{ borderBottom: `2px solid ${theme.colors.border}`, background: '#fcfcfc' }}>
+              <th style={{ padding: '20px', fontWeight: '800', fontSize: '0.85rem', color: theme.colors.textLight, textTransform: 'uppercase' }}>Étudiant</th>
+              <th style={{ padding: '20px', fontWeight: '800', fontSize: '0.85rem', color: theme.colors.textLight, textTransform: 'uppercase' }}>Matricule</th>
+              <th style={{ padding: '20px', fontWeight: '800', fontSize: '0.85rem', color: theme.colors.textLight, textTransform: 'uppercase' }}>Score / Barème</th>
+              <th style={{ padding: '20px', fontWeight: '800', fontSize: '0.85rem', color: theme.colors.textLight, textTransform: 'uppercase' }}>Date de rendu</th>
+              <th style={{ padding: '20px', fontWeight: '800', fontSize: '0.85rem', color: theme.colors.textLight, textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredSubmissions.length === 0 ? (
               <tr>
-                <td colSpan="5" style={{ padding: '60px', textAlign: 'center', color: theme.colors.textLight }}>
-                  Aucune copie trouvee.
+                <td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: theme.colors.textLight, fontWeight: '600' }}>
+                  Aucune copie trouvée.
                 </td>
               </tr>
             ) : (
@@ -142,7 +141,7 @@ const AdminSubmissions = () => {
                     </span>
                   </td>
                   <td style={{ padding: '20px', color: theme.colors.textLight, fontSize: '0.9rem' }}>
-                    {new Date(sub.createdAt).toLocaleString()}
+                    {new Date(sub.createdAt).toLocaleString('fr-FR')}
                   </td>
                   <td style={{ padding: '20px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
@@ -156,13 +155,13 @@ const AdminSubmissions = () => {
                         <Eye size={16} /> Voir Copie
                       </button>
                       <button 
-                        onClick={() => handleDownloadPDF(sub._id, sub.user?.matricule)}
+                        onClick={() => setSelectedSubmission(sub)}
                         style={{ 
                           background: theme.colors.primary, color: 'white', padding: '10px 15px', borderRadius: '8px', 
                           fontWeight: '700', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem'
                         }}
                       >
-                        <Download size={16} /> PDF
+                        <Download size={16} /> PDF NASA
                       </button>
                     </div>
                   </td>

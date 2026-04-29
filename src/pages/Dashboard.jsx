@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,10 +26,21 @@ const Dashboard = () => {
     };
     fetchExams();
 
-    // Ecoute temps reel des nouveaux examens
+    // Horloge interne pour rafraîchir les statuts (Verrouillé -> Commencer) en temps réel
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 30000);
+
+    // Écoute temps réel des nouveaux examens avec protection anti-doublon
     subscribeToExams((newExam) => {
-      setExams(prev => [newExam, ...prev]);
+      setExams(prev => {
+        const exists = prev.find(e => e._id === newExam._id);
+        if (exists) return prev;
+        return [newExam, ...prev];
+      });
     });
+
+    return () => clearInterval(timer);
   }, []);
 
   const filteredExams = exams.filter(exam => 
