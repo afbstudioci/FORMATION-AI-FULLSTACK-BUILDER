@@ -33,10 +33,11 @@ const Dashboard = () => {
       setCurrentTime(new Date());
     }, 1000);
 
-    // Écoute temps réel des nouveaux examens
+    // Écoute temps réel des nouveaux examens avec protection renforcée
     subscribeToExams((newExam) => {
       setExams(prev => {
-        if (prev.find(e => e._id === newExam._id)) return prev;
+        const isDuplicate = prev.some(e => e._id.toString() === newExam._id.toString());
+        if (isDuplicate) return prev;
         return [newExam, ...prev];
       });
     });
