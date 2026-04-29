@@ -19,6 +19,7 @@ const Dashboard = () => {
     const fetchExams = async () => {
       try {
         const { data } = await api.get('/exams');
+        console.log("Examens reçus du serveur:", data.map(e => ({ title: e.title, hasSubmitted: e.hasSubmitted })));
         setExams(data);
       } catch (err) {
         console.error('Erreur chargement examens', err);
