@@ -4,13 +4,15 @@ import api from '../services/api';
 import ExamCard from '../components/ExamCard';
 import { theme } from '../theme';
 import { Search, Loader2, Sparkles } from 'lucide-react';
-import { subscribeToExams } from '../services/socket';
+import { subscribeToExams, subscribeToSubmissions } from '../services/socket';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,22 +28,32 @@ const Dashboard = () => {
     };
     fetchExams();
 
-    // Horloge interne pour rafraîchir les statuts (Verrouillé -> Commencer) en temps réel
+    // Horloge interne haute précision (1s) pour le basculement exact des statuts
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 30000);
+    }, 1000);
 
-    // Écoute temps réel des nouveaux examens avec protection anti-doublon
+    // Écoute temps réel des nouveaux examens
     subscribeToExams((newExam) => {
       setExams(prev => {
-        const exists = prev.find(e => e._id === newExam._id);
-        if (exists) return prev;
+        if (prev.find(e => e._id === newExam._id)) return prev;
         return [newExam, ...prev];
       });
     });
 
+    // Écoute temps réel des soumissions pour mettre à jour le statut "DÉJÀ COMPOSÉ"
+    subscribeToSubmissions((submission) => {
+      if (submission.user._id === user?._id) {
+        setExams(prev => prev.map(exam => 
+          exam._id === (submission.exam._id || submission.exam) 
+            ? { ...exam, hasSubmitted: true } 
+            : exam
+        ));
+      }
+    });
+
     return () => clearInterval(timer);
-  }, []);
+  }, [user]);
 
   const filteredExams = exams.filter(exam => 
     exam.title.toLowerCase().includes(searchTerm.toLowerCase())
