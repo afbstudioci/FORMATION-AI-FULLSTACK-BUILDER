@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Download, Loader2, User, FileCheck, ShieldAlert } from 'lucide-react';
 import api from '../services/api';
 import { theme } from '../theme';

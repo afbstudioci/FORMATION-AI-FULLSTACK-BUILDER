@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Plus, Trash2, Save, Calendar, Clock } from 'lucide-react';
 import api from '../services/api';
