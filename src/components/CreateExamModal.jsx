@@ -250,7 +250,8 @@ const CreateExamModal = ({ onClose, onCreated }) => {
         .react-datepicker-wrapper { width: 100%; }
       `}</style>
     </div>
-  );
+  </>
+ );
 };
 
 export default CreateExamModal;
