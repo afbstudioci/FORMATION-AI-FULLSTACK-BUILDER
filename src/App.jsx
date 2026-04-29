@@ -10,11 +10,12 @@ import ExamSession from './pages/ExamSession';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSubmissions from './pages/AdminSubmissions';
 import Profile from './pages/Profile';
+import InstallPWA from './components/InstallPWA';
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -41,6 +42,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      <InstallPWA />
     </AuthProvider>
   );
 }
