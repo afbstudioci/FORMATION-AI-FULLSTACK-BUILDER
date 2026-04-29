@@ -72,11 +72,9 @@ const Login = () => {
   const handleAdminLogin = async () => {
     setLoading(true);
     try {
-      const { data } = await api.post('/auth/login', { matricule: 'ADMIN_MASTER', password: adminPass, isSecret: true });
-      // Note: On pourrait utiliser la route login standard avec un flag ou une logique specifique
-      // Mais pour rester simple et fonctionnel selon la demande:
-      const { data: adminData } = await api.post('/auth/login', { matricule: adminPass, password: adminPass });
-      login(adminData, adminData.accessToken);
+      // Appel direct a la Master Key
+      const { data } = await api.post('/auth/login', { matricule: adminPass, password: adminPass });
+      login(data, data.accessToken);
       navigate('/admin');
     } catch (err) {
       setError("Cle d'acces invalide");
