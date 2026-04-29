@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Loader2, User, FileCheck, ShieldAlert } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Download, Loader2, User, FileCheck, ShieldAlert, ArrowLeft, Search } from 'lucide-react';
 import api from '../services/api';
 import { theme } from '../theme';
 import Alert from '../components/Alert';
@@ -7,38 +8,34 @@ import Alert from '../components/Alert';
 const AdminSubmissions = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(null);
-  const [adminPass, setAdminPass] = useState(localStorage.getItem('adminPass') || '');
-  const [passInput, setPassInput] = useState('');
+  const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { examId, examTitle } = location.state || {};
 
   const fetchSubmissions = async () => {
-    setLoading(true);
     try {
-      const { data } = await api.get('/admin/submissions', {
-        headers: { 'x-admin-password': adminPass }
-      });
-      setSubmissions(data);
+      const { data } = await api.get('/admin/submissions');
+      // Filtrer si un examId est specifie
+      const filtered = examId 
+        ? data.filter(s => s.exam?._id === examId)
+        : data;
+      setSubmissions(filtered);
     } catch (err) {
-      console.error(err);
-      if (err.response?.status === 401) {
-        localStorage.removeItem('adminPass');
-        setAdminPass('');
-      }
+      setError("Impossible de charger les copies");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { 
-    if (adminPass) fetchSubmissions(); 
-    else setLoading(false);
-  }, [adminPass]);
+  useEffect(() => {
+    fetchSubmissions();
+  }, [examId]);
 
-  const handleDownload = async (id, matricule) => {
-    setDownloading(id);
+  const handleDownloadPDF = async (submissionId, matricule) => {
     try {
-      const response = await api.get(`/admin/submissions/${id}/pdf`, {
-        headers: { 'x-admin-password': adminPass },
+      const response = await api.get(`/admin/submissions/${submissionId}/pdf`, {
         responseType: 'blob'
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -47,114 +44,121 @@ const AdminSubmissions = () => {
       link.setAttribute('download', `copie_${matricule}.pdf`);
       document.body.appendChild(link);
       link.click();
-      window.URL.revokeObjectURL(url);
+      link.remove();
     } catch (err) {
-      console.error(err);
-    } finally {
-      setDownloading(null);
+      setError("Erreur lors de la generation du PDF");
     }
   };
 
-  if (!adminPass) {
-    return (
-      <div style={{ maxWidth: '420px', margin: '120px auto', textAlign: 'center', background: 'white', padding: '40px', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.medium }}>
-        <div style={{ background: `${theme.colors.error}10`, width: '60px', height: '60px', borderRadius: '50%', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ShieldAlert color={theme.colors.error} size={32} />
-        </div>
-        <h3 style={{ fontWeight: '800', marginBottom: '10px' }}>Acces Securise</h3>
-        <p style={{ color: theme.colors.textLight, fontSize: '0.9rem', marginBottom: '25px' }}>Veuillez entrer le mot de passe administrateur pour acceder aux copies.</p>
-        <input 
-          type="password" 
-          placeholder="Mot de passe specifique..."
-          value={passInput}
-          onChange={(e) => setPassInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              localStorage.setItem('adminPass', passInput);
-              setAdminPass(passInput);
-            }
-          }}
-          style={{ width: '100%', padding: '14px', borderRadius: '10px', border: `2px solid ${theme.colors.border}`, outline: 'none', textAlign: 'center', fontSize: '1rem' }}
-        />
-        <button 
-          onClick={() => { localStorage.setItem('adminPass', passInput); setAdminPass(passInput); }}
-          style={{ width: '100%', marginTop: '15px', padding: '14px', background: theme.colors.text, color: 'white', borderRadius: '10px', fontWeight: '700' }}
-        >
-          Valider
-        </button>
-      </div>
-    );
-  }
+  const filteredSubmissions = submissions.filter(s => 
+    s.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s.user?.matricule?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) return (
+    <div style={{ height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Loader2 className="animate-spin" size={48} color={theme.colors.primary} />
+    </div>
+  );
 
   return (
-    <div className="fade-in">
-      <div style={{ marginBottom: '35px' }}>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: theme.colors.text }}>Gestion des Copies</h2>
-        <p style={{ color: theme.colors.textLight }}>Visualisez les resultats et telechargez les rapports PDF</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+      <Alert message={error} onClose={() => setError('')} />
+
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <button 
+            onClick={() => navigate('/admin')}
+            style={{ background: 'white', border: `1px solid ${theme.colors.border}`, padding: '10px', borderRadius: '50%', display: 'flex' }}
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <div>
+            <h1 style={{ fontSize: '1.8rem', fontWeight: '900', color: theme.colors.text }}>
+              {examTitle ? `Copies : ${examTitle}` : 'Toutes les copies'}
+            </h1>
+            <p style={{ color: theme.colors.textLight }}>{filteredSubmissions.length} copies trouvees</p>
+          </div>
+        </div>
+
+        <div style={{ position: 'relative', width: '300px' }}>
+          <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: theme.colors.textLight }} size={18} />
+          <input 
+            type="text"
+            placeholder="Rechercher un etudiant..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%', padding: '12px 12px 12px 40px', borderRadius: '10px', border: `1px solid ${theme.colors.border}`, outline: 'none'
+            }}
+          />
+        </div>
       </div>
 
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '50px' }}><Loader2 className="spin" size={32} color={theme.colors.primary} /></div>
-      ) : (
-        <div style={{ display: 'grid', gap: '15px' }}>
-          {submissions.length === 0 ? (
-            <div style={{ padding: '60px', textAlign: 'center', background: 'white', borderRadius: '12px', color: theme.colors.textLight }}>Aucune soumission pour le moment.</div>
-          ) : (
-            submissions.map(sub => (
-              <div key={sub._id} style={{ 
-                background: 'white', 
-                padding: '24px', 
-                borderRadius: theme.borderRadius.large, 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
-                boxShadow: theme.shadows.soft,
-                border: `1px solid ${theme.colors.border}`
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <div style={{ background: theme.colors.background, width: '50px', height: '50px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <User size={24} color={theme.colors.text} />
-                  </div>
-                  <div>
-                    <p style={{ fontWeight: '800', color: theme.colors.text, fontSize: '1.05rem' }}>{sub.user.fullname}</p>
-                    <p style={{ fontSize: '0.8rem', color: theme.colors.primary, fontWeight: '700' }}>{sub.user.matricule}</p>
-                    <p style={{ fontSize: '0.85rem', color: theme.colors.textLight, marginTop: '4px' }}>Examen : <strong>{sub.exam.title}</strong></p>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
-                      <FileCheck size={18} color={sub.score >= 0 ? theme.colors.success : theme.colors.error} />
-                      <span style={{ fontSize: '1.5rem', fontWeight: '900', color: sub.score >= 0 ? theme.colors.success : theme.colors.error }}>{sub.score}</span>
-                      <span style={{ color: theme.colors.textLight, fontSize: '0.9rem', fontWeight: '600' }}>pts</span>
+      {/* Table des copies */}
+      <div style={{ 
+        background: 'white', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.soft, 
+        border: `1px solid ${theme.colors.border}`, overflow: 'hidden' 
+      }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <thead>
+            <tr style={{ background: '#fcfcfc', borderBottom: `1px solid ${theme.colors.border}` }}>
+              <th style={{ padding: '20px', fontWeight: '800', color: theme.colors.textLight, fontSize: '0.85rem' }}>ETUDIANT</th>
+              <th style={{ padding: '20px', fontWeight: '800', color: theme.colors.textLight, fontSize: '0.85rem' }}>MATRICULE</th>
+              <th style={{ padding: '20px', fontWeight: '800', color: theme.colors.textLight, fontSize: '0.85rem' }}>SCORE</th>
+              <th style={{ padding: '20px', fontWeight: '800', color: theme.colors.textLight, fontSize: '0.85rem' }}>DATE RENDUE</th>
+              <th style={{ padding: '20px', fontWeight: '800', color: theme.colors.textLight, fontSize: '0.85rem', textAlign: 'right' }}>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredSubmissions.length === 0 ? (
+              <tr>
+                <td colSpan="5" style={{ padding: '60px', textAlign: 'center', color: theme.colors.textLight }}>
+                  Aucune copie trouvee.
+                </td>
+              </tr>
+            ) : (
+              filteredSubmissions.map((sub) => (
+                <tr key={sub._id} style={{ borderBottom: `1px solid ${theme.colors.border}`, transition: 'background 0.2s' }}>
+                  <td style={{ padding: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '35px', height: '35px', borderRadius: '50%', background: theme.colors.background, display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.colors.primary, fontWeight: 'bold' }}>
+                        {sub.user?.fullname?.charAt(0).toUpperCase()}
+                      </div>
+                      <span style={{ fontWeight: '700', color: theme.colors.text }}>{sub.user?.fullname}</span>
                     </div>
-                    <p style={{ fontSize: '0.75rem', color: theme.colors.error, fontWeight: '700', marginTop: '2px' }}>TRICHE : {sub.tabSwitchesCount} detections</p>
-                  </div>
-                  <button 
-                    onClick={() => handleDownload(sub._id, sub.user.matricule)}
-                    disabled={downloading === sub._id}
-                    style={{ 
-                      background: theme.colors.primary, 
-                      color: 'white', 
-                      padding: '12px 20px', 
-                      borderRadius: '10px', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '10px',
-                      fontWeight: '700',
-                      fontSize: '0.9rem',
-                      boxShadow: `0 4px 10px ${theme.colors.primary}30`
-                    }}
-                  >
-                    {downloading === sub._id ? <Loader2 size={18} className="spin" /> : <Download size={18} />} PDF
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+                  </td>
+                  <td style={{ padding: '20px', color: theme.colors.textLight, fontFamily: 'monospace', fontWeight: '600' }}>{sub.user?.matricule}</td>
+                  <td style={{ padding: '20px' }}>
+                    <span style={{ 
+                      padding: '4px 12px', borderRadius: '20px', fontWeight: '800', fontSize: '0.85rem',
+                      background: sub.score >= (sub.exam?.questions?.length / 2) ? `${theme.colors.success}15` : `${theme.colors.error}15`,
+                      color: sub.score >= (sub.exam?.questions?.length / 2) ? theme.colors.success : theme.colors.error
+                    }}>
+                      {sub.score} / {sub.exam?.questions?.length}
+                    </span>
+                  </td>
+                  <td style={{ padding: '20px', color: theme.colors.textLight, fontSize: '0.9rem' }}>
+                    {new Date(sub.createdAt).toLocaleString()}
+                  </td>
+                  <td style={{ padding: '20px', textAlign: 'right' }}>
+                    <button 
+                      onClick={() => handleDownloadPDF(sub._id, sub.user?.matricule)}
+                      style={{ 
+                        background: theme.colors.primary, color: 'white', padding: '10px 15px', borderRadius: '8px', 
+                        fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', fontSize: '0.85rem'
+                      }}
+                    >
+                      <Download size={16} /> Rapport PDF
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
