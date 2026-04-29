@@ -51,7 +51,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
   const addQuestion = () => {
     setFormData({
       ...formData,
-      questions: [...formData.questions, { text: '', options: ['', ''], correctAnswer: '' }]
+      questions: [{ text: '', options: ['', ''], correctAnswer: '' }, ...formData.questions]
     });
   };
 
