@@ -4,12 +4,14 @@ import { Search, Loader2, ArrowLeft, User, ShieldCheck, ShieldAlert, UserPlus, U
 import api from '../services/api';
 import { theme } from '../theme';
 import Alert from '../components/Alert';
+import ConfirmModal from '../components/ConfirmModal';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [confirmRole, setConfirmRole] = useState({ open: false, user: null });
   const navigate = useNavigate();
 
   const fetchUsers = async () => {
@@ -27,19 +29,20 @@ const AdminUsers = () => {
     fetchUsers();
   }, []);
 
-  const handleRoleToggle = async (user) => {
+  const handleRoleToggle = (user) => {
+    setConfirmRole({ open: true, user });
+  };
+
+  const handleActualToggle = async () => {
+    const { user } = confirmRole;
     const newRole = user.role === 'admin' ? 'student' : 'admin';
-    const confirmMsg = user.role === 'admin' 
-      ? `Retirer les droits d'administrateur à ${user.fullname} ?` 
-      : `Donner les droits d'administrateur à ${user.fullname} ?`;
-
-    if (!window.confirm(confirmMsg)) return;
-
     try {
       await api.patch(`/admin/users/${user._id}/role`, { role: newRole });
       fetchUsers();
     } catch (err) {
       setError(err.response?.data?.message || "Erreur lors du changement de rôle");
+    } finally {
+      setConfirmRole({ open: false, user: null });
     }
   };
 
@@ -149,7 +152,19 @@ const AdminUsers = () => {
             Aucun utilisateur trouvé.
           </div>
         )}
-      </div>
+        <ConfirmModal 
+        isOpen={confirmRole.open}
+        title={confirmRole.user?.role === 'admin' ? "Rétrograder l'administrateur ?" : "Promouvoir l'utilisateur ?"}
+        message={confirmRole.user?.role === 'admin' 
+          ? `Êtes-vous sûr de vouloir retirer les droits d'administration à ${confirmRole.user?.fullname} ?` 
+          : `Êtes-vous sûr de vouloir donner les pleins pouvoirs d'administration à ${confirmRole.user?.fullname} ?`
+        }
+        confirmText={confirmRole.user?.role === 'admin' ? "Confirmer la rétrogradation" : "Confirmer la promotion"}
+        type={confirmRole.user?.role === 'admin' ? "danger" : "info"}
+        onConfirm={handleActualToggle}
+        onCancel={() => setConfirmRole({ open: false, user: null })}
+      />
+    </div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { Clock, AlertTriangle, ChevronRight, ChevronLeft, Send, Loader2, DoorOpe
 import api from '../services/api';
 import { theme } from '../theme';
 import Alert from '../components/Alert';
+import ConfirmModal from '../components/ConfirmModal';
 
 const ExamSession = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ const ExamSession = () => {
   const [timeLeft, setTimeLeft] = useState('');
   const [info, setInfo] = useState({ message: '', type: 'error' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmAbandon, setShowConfirmAbandon] = useState(false);
   
   const answersRef = useRef([]); // Pour garder trace dans l'unload
   const tabSwitchesRef = useRef(0);
@@ -193,21 +195,31 @@ const ExamSession = () => {
         </button>
 
         <div style={{ display: 'flex', gap: '20px' }}>
-          <button onClick={() => { if(window.confirm("Voulez-vous vraiment abandonner l'examen ? Une copie vide sera soumise.")) handleSubmit('ABANDONED'); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: theme.colors.error, background: 'none', border: 'none', fontWeight: '700', fontSize: '0.9rem' }}>
+          <button onClick={() => setShowConfirmAbandon(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: theme.colors.error, background: 'none', border: 'none', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer' }}>
             <DoorOpen size={18} /> Abandonner
           </button>
           
           {currentQuestion === exam.questions.length - 1 ? (
-            <button onClick={() => handleSubmit('COMPLETED')} disabled={isSubmitting} style={{ padding: '16px 45px', background: theme.colors.success, color: 'white', borderRadius: '50px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: `0 10px 25px ${theme.colors.success}40` }}>
+            <button onClick={() => handleSubmit('COMPLETED')} disabled={isSubmitting} style={{ padding: '16px 45px', background: theme.colors.success, color: 'white', borderRadius: '50px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: `0 10px 25px ${theme.colors.success}40`, cursor: 'pointer' }}>
               {isSubmitting ? 'Traitement...' : <><Send size={20} /> Terminer maintenant</>}
             </button>
           ) : (
-            <button onClick={() => setCurrentQuestion(prev => prev + 1)} style={{ padding: '16px 40px', background: theme.colors.primary, color: 'white', borderRadius: '50px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: `0 10px 25px ${theme.colors.primary}30` }}>
+            <button onClick={() => setCurrentQuestion(prev => prev + 1)} style={{ padding: '16px 40px', background: theme.colors.primary, color: 'white', borderRadius: '50px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: `0 10px 25px ${theme.colors.primary}30`, cursor: 'pointer' }}>
               Suivant <ChevronRight size={22} />
             </button>
           )}
         </div>
       </div>
+
+      <ConfirmModal 
+        isOpen={showConfirmAbandon}
+        title="Abandonner l'examen ?"
+        message="Attention : En abandonnant maintenant, une copie vide sera soumise et vous ne pourrez plus retenter cette épreuve. Voulez-vous vraiment continuer ?"
+        confirmText="Oui, abandonner"
+        cancelText="Rester et continuer"
+        onConfirm={() => { setShowConfirmAbandon(false); handleSubmit('ABANDONED'); }}
+        onCancel={() => setShowConfirmAbandon(false)}
+      />
     </div>
   );
 };
