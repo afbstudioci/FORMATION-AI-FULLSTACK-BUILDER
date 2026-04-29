@@ -124,11 +124,11 @@ const ExamSession = () => {
     }
   };
 
-  if (loading) {
+  if (loading || !exam) {
     return (
       <div style={{ height: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
         <Loader2 className="animate-spin" color={theme.colors.primary} size={48} />
-        <p style={{ color: theme.colors.textLight }}>Verification de la session...</p>
+        <p style={{ color: theme.colors.textLight }}>Preparation de la session...</p>
       </div>
     );
   }
