@@ -62,23 +62,25 @@ const AdminDashboard = () => {
       <Alert message={error} onClose={() => setError('')} />
 
       {/* Header avec bouton d'action */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="mobile-stack" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
         <div>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: theme.colors.text, letterSpacing: '-1px' }}>Dashboard Admin</h1>
-          <p style={{ color: theme.colors.textLight, marginTop: '5px' }}>Gerez vos epreuves et suivez les performances</p>
+          <h2 style={{ fontWeight: '900', color: theme.colors.text, letterSpacing: '-1px' }}>Dashboard Admin</h2>
+          <p style={{ color: theme.colors.textLight, marginTop: '5px', fontSize: '0.9rem' }}>Gérez vos épreuves et suivez les performances</p>
         </div>
         <button 
           onClick={() => setShowCreateModal(true)}
           style={{
             background: theme.colors.primary,
             color: 'white',
-            padding: '14px 24px',
+            padding: '12px 24px',
             borderRadius: theme.borderRadius.medium,
             fontWeight: '700',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '10px',
-            boxShadow: `0 10px 20px ${theme.colors.primary}30`
+            boxShadow: `0 10px 20px ${theme.colors.primary}30`,
+            width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
           <Plus size={20} /> Nouvelle Epreuve
@@ -137,40 +139,39 @@ const AdminDashboard = () => {
             </div>
           ) : (
             exams.map((exam) => (
-              <div key={exam._id} style={{ 
+              <div key={exam._id} className="mobile-stack" style={{ 
                 padding: '25px', 
                 borderBottom: `1px solid ${theme.colors.border}`, 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'space-between',
-                transition: 'background 0.2s',
-                cursor: 'default'
+                gap: '20px'
               }}>
-                <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                  <div style={{ 
-                    width: '50px', height: '50px', background: theme.colors.background, 
+                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                  <div className="hide-mobile" style={{ 
+                    width: '45px', height: '45px', background: theme.colors.background, 
                     borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.colors.primary 
                   }}>
-                    <FileText size={24} />
+                    <FileText size={22} />
                   </div>
                   <div>
-                    <h3 style={{ fontWeight: '700', color: theme.colors.text }}>{exam.title}</h3>
-                    <div style={{ display: 'flex', gap: '15px', marginTop: '5px', fontSize: '0.8rem', color: theme.colors.textLight }}>
+                    <h3 style={{ fontWeight: '700', color: theme.colors.text, fontSize: '1rem' }}>{exam.title}</h3>
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '5px', fontSize: '0.8rem', color: theme.colors.textLight }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Calendar size={14} /> {new Date(exam.startTime).toLocaleDateString()}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {exam.questions?.length} Questions</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {exam.questions?.length} Q.</span>
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '10px', width: window.innerWidth < 768 ? '100%' : 'auto' }}>
                   <button 
                     onClick={() => navigate('/admin/submissions', { state: { examId: exam._id, examTitle: exam.title } })}
                     style={{ 
-                      padding: '10px 18px', borderRadius: '8px', background: theme.colors.background, 
-                      color: theme.colors.text, fontWeight: '600', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px'
+                      flex: 1, padding: '10px 18px', borderRadius: '8px', background: theme.colors.background, 
+                      color: theme.colors.text, fontWeight: '700', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                     }}
                   >
-                    Voir copies <ChevronRight size={16} />
+                    Copies <ChevronRight size={16} />
                   </button>
                   <button 
                     onClick={() => handleDeleteExam(exam._id)}

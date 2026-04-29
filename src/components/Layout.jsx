@@ -12,7 +12,7 @@ const Layout = () => {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: theme.colors.background }}>
       <nav style={{ 
         background: theme.colors.surface, 
-        padding: '0.75rem 2rem', 
+        padding: '0.75rem 1rem', 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
@@ -24,39 +24,39 @@ const Layout = () => {
       }}>
         <div 
           onClick={() => navigate('/')} 
-          style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
         >
           <div style={{ 
             background: theme.colors.primary, 
-            padding: '8px', 
-            borderRadius: '10px',
+            padding: '6px', 
+            borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <GraduationCap color="white" size={24} />
+            <GraduationCap color="white" size={20} />
           </div>
-          <h1 style={{ fontSize: '1.25rem', color: theme.colors.text, fontWeight: '800', letterSpacing: '-0.5px' }}>
-            AFB<span style={{ color: theme.colors.primary }}>EXAM</span>
+          <h1 style={{ fontSize: '1.1rem', color: theme.colors.text, fontWeight: '800', letterSpacing: '-0.5px' }}>
+            AFB<span style={{ color: theme.colors.primary }} className="hide-mobile">EXAM</span>
           </h1>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           {user?.role === 'admin' && (
             <button 
               onClick={() => navigate('/admin')}
               style={{
                 background: 'transparent',
                 color: theme.colors.primary,
-                fontWeight: '600',
-                fontSize: '0.9rem',
+                fontWeight: '700',
+                fontSize: '0.85rem',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px'
               }}
             >
               <LayoutDashboard size={18} />
-              Panel Admin
+              <span className="hide-mobile">Admin</span>
             </button>
           )}
 
@@ -65,26 +65,22 @@ const Layout = () => {
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '12px',
-              padding: '6px 12px',
+              gap: '10px',
+              padding: '4px 8px',
               background: theme.colors.background,
               borderRadius: theme.borderRadius.medium,
-              cursor: 'pointer',
-              transition: 'all 0.2s'
+              cursor: 'pointer'
             }}
-            onMouseOver={(e) => e.currentTarget.style.background = '#f0f0f0'}
-            onMouseOut={(e) => e.currentTarget.style.background = theme.colors.background}
           >
             <div style={{ 
-              width: '32px', 
-              height: '32px', 
+              width: '30px', 
+              height: '30px', 
               borderRadius: '50%', 
               background: theme.colors.secondary,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'white',
-              fontSize: '0.8rem',
               fontWeight: 'bold',
               overflow: 'hidden'
             }}>
@@ -94,9 +90,8 @@ const Layout = () => {
                 user?.fullname?.charAt(0).toUpperCase()
               )}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: '700', color: theme.colors.text }}>{user?.fullname}</span>
-              <span style={{ fontSize: '0.7rem', color: theme.colors.textLight }}>{user?.matricule}</span>
+            <div className="hide-mobile" style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: '700', color: theme.colors.text }}>{user?.fullname?.split(' ')[0]}</span>
             </div>
           </div>
 
@@ -105,21 +100,16 @@ const Layout = () => {
             style={{ 
               background: 'rgba(214, 48, 49, 0.1)', 
               color: theme.colors.error, 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              padding: '10px',
-              borderRadius: '10px',
-              transition: 'all 0.2s ease'
+              padding: '8px', 
+              borderRadius: '8px'
             }}
-            title="Se deconnecter"
           >
-            <LogOut size={20} />
+            <LogOut size={18} />
           </button>
         </div>
       </nav>
 
-      <main style={{ flex: 1, padding: '2.5rem', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+      <main className="main-container" style={{ flex: 1 }}>
         <Outlet />
       </main>
     </div>

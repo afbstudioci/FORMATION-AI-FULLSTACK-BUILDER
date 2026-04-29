@@ -49,18 +49,17 @@ const Dashboard = () => {
 
   return (
     <div className="fade-in">
-      <div style={{ 
-        marginBottom: '45px', 
+      <div className="mobile-stack" style={{ 
+        marginBottom: '40px', 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        flexWrap: 'wrap', 
-        gap: '24px',
+        gap: '20px',
         padding: '10px 0'
       }}>
         <div>
-          <h2 style={{ fontSize: '2rem', fontWeight: '900', color: theme.colors.text, letterSpacing: '-0.5px' }}>Tableau de bord</h2>
-          <p style={{ color: theme.colors.textLight, marginTop: '5px' }}>Bienvenue ! Voici vos sessions d'examens disponibles.</p>
+          <h2 style={{ fontWeight: '900', color: theme.colors.text, letterSpacing: '-0.5px' }}>Tableau de bord</h2>
+          <p style={{ color: theme.colors.textLight, marginTop: '5px', fontSize: '0.9rem' }}>Vos sessions d'examens disponibles.</p>
         </div>
 
         <div style={{ position: 'relative', width: '100%', maxWidth: '350px' }}>

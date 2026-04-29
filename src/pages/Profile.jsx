@@ -79,9 +79,9 @@ const Profile = () => {
           <div style={{ position: 'absolute', inset: 0, opacity: 0.2, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '30px', padding: '0 40px', marginTop: '-80px', position: 'relative' }}>
-          <div style={{ position: 'relative', group: 'true' }}>
-            <div style={{ width: '160px', height: '160px', borderRadius: '40px', border: '8px solid white', overflow: 'hidden', background: '#f5f5f5', boxShadow: theme.shadows.premium }}>
+        <div className="mobile-stack" style={{ display: 'flex', alignItems: 'flex-end', gap: '20px', padding: '0 20px', marginTop: '-60px', position: 'relative' }}>
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <div style={{ width: window.innerWidth < 768 ? '120px' : '160px', height: window.innerWidth < 768 ? '120px' : '160px', borderRadius: '30px', border: '6px solid white', overflow: 'hidden', background: '#f5f5f5', boxShadow: theme.shadows.premium }}>
               {profileData.user.profilePic ? (
                 <img src={profileData.user.profilePic} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
@@ -100,11 +100,11 @@ const Profile = () => {
             <input type="file" ref={fileInputRef} hidden onChange={handleImageUpload} accept="image/*" />
           </div>
 
-          <div style={{ paddingBottom: '15px', flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: '900', color: theme.colors.text, letterSpacing: '-1px' }}>{profileData.user.fullname}</h1>
-                <p style={{ color: theme.colors.textLight, fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ paddingBottom: '15px', flex: 1, width: '100%' }}>
+            <div className="mobile-stack" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', textAlign: window.innerWidth < 768 ? 'center' : 'left' }}>
+              <div style={{ width: '100%' }}>
+                <h1 style={{ fontWeight: '900', color: theme.colors.text, letterSpacing: '-1px' }}>{profileData.user.fullname}</h1>
+                <p style={{ color: theme.colors.textLight, fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: window.innerWidth < 768 ? 'center' : 'flex-start', gap: '8px' }}>
                   <Hash size={16} /> {profileData.user.matricule} • <Shield size={16} /> {profileData.user.role.toUpperCase()}
                 </p>
               </div>
@@ -119,7 +119,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '30px' }}>
+      <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 900 ? '1fr' : '1.5fr 1fr', gap: '30px' }}>
         
         {/* Left Column: Stats or Audit */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>

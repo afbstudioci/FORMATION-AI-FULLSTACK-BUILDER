@@ -166,7 +166,7 @@ const ExamSession = () => {
 
       <AnimatePresence mode="wait">
         <motion.div key={currentQuestion} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-          style={{ background: 'white', padding: '50px', borderRadius: '24px', boxShadow: theme.shadows.medium, border: `1px solid ${theme.colors.border}`, position: 'relative' }}
+          style={{ background: 'white', padding: window.innerWidth < 768 ? '25px' : '50px', borderRadius: '24px', boxShadow: theme.shadows.medium, border: `1px solid ${theme.colors.border}`, position: 'relative' }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '25px' }}>
             <span style={{ color: theme.colors.primary, fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Question {currentQuestion + 1}</span>

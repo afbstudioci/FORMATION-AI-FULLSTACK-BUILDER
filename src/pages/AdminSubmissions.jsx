@@ -66,27 +66,27 @@ const AdminSubmissions = () => {
       <Alert message={error} onClose={() => setError('')} />
 
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+      <div className="mobile-stack" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <button 
             onClick={() => navigate('/admin')}
-            style={{ background: 'white', border: `1px solid ${theme.colors.border}`, padding: '10px', borderRadius: '50%', display: 'flex' }}
+            style={{ background: 'white', border: `1px solid ${theme.colors.border}`, padding: '8px', borderRadius: '50%', display: 'flex' }}
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
           </button>
           <div>
-            <h1 style={{ fontSize: '1.8rem', fontWeight: '900', color: theme.colors.text }}>
+            <h2 style={{ fontWeight: '900', color: theme.colors.text }}>
               {examTitle ? `Copies : ${examTitle}` : 'Toutes les copies'}
-            </h1>
-            <p style={{ color: theme.colors.textLight }}>{filteredSubmissions.length} copies trouvees</p>
+            </h2>
+            <p style={{ color: theme.colors.textLight, fontSize: '0.85rem' }}>{filteredSubmissions.length} copies</p>
           </div>
         </div>
 
-        <div style={{ position: 'relative', width: '300px' }}>
+        <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
           <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: theme.colors.textLight }} size={18} />
           <input 
             type="text"
-            placeholder="Rechercher un etudiant..."
+            placeholder="Rechercher..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -99,7 +99,7 @@ const AdminSubmissions = () => {
       {/* Table des copies */}
       <div style={{ 
         background: 'white', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.soft, 
-        border: `1px solid ${theme.colors.border}`, overflow: 'hidden' 
+        border: `1px solid ${theme.colors.border}`, overflowX: 'auto' 
       }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
