@@ -5,10 +5,12 @@ import api from '../services/api';
 import { theme } from '../theme';
 import Alert from '../components/Alert';
 import SubmissionReview from '../components/SubmissionReview';
+import ConfirmModal from '../components/ConfirmModal';
 
 const AdminSubmissions = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubmission, setSelectedSubmission] = useState(null);
@@ -52,13 +54,18 @@ const AdminSubmissions = () => {
     }
   };
 
-  const handleDeleteSubmission = async (id) => {
-    if (!window.confirm("Supprimer définitivement cette copie ?")) return;
+  const handleDeleteSubmission = (id) => {
+    setConfirmDelete({ open: true, id });
+  };
+
+  const handleActualDelete = async () => {
     try {
-      await api.delete(`/admin/submissions/${id}`);
+      await api.delete(`/admin/submissions/${confirmDelete.id}`);
       fetchSubmissions();
     } catch (err) {
       setError("Erreur lors de la suppression");
+    } finally {
+      setConfirmDelete({ open: false, id: null });
     }
   };
 
@@ -198,6 +205,14 @@ const AdminSubmissions = () => {
           onClose={() => setSelectedSubmission(null)} 
         />
       )}
+
+      <ConfirmModal 
+        isOpen={confirmDelete.open}
+        title="Supprimer la copie ?"
+        message="Cette action supprimera définitivement les résultats de cet étudiant pour cette épreuve."
+        onConfirm={handleActualDelete}
+        onCancel={() => setConfirmDelete({ open: false, id: null })}
+      />
     </div>
   );
 };

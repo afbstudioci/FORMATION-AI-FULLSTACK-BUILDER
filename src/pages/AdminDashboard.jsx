@@ -4,6 +4,7 @@ import { Plus, FileText, Users, Download, Loader2, Trash2, Calendar, Clock, Chev
 import api from '../services/api';
 import { theme } from '../theme';
 import CreateExamModal from '../components/CreateExamModal';
+import ConfirmModal from '../components/ConfirmModal';
 import Alert from '../components/Alert';
 import { subscribeToSubmissions } from '../services/socket';
 
@@ -12,6 +13,7 @@ const AdminDashboard = () => {
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -40,14 +42,18 @@ const AdminDashboard = () => {
     });
   }, []);
 
-  const handleDeleteExam = async (id) => {
-    if (window.confirm("Etes-vous sur de vouloir supprimer cette epreuve ?")) {
-      try {
-        await api.delete(`/exams/${id}`);
-        fetchData();
-      } catch (err) {
-        setError("Impossible de supprimer l'epreuve");
-      }
+  const handleDeleteExam = (id) => {
+    setConfirmDelete({ open: true, id });
+  };
+
+  const handleActualDelete = async () => {
+    try {
+      await api.delete(`/exams/${confirmDelete.id}`);
+      fetchData();
+    } catch (err) {
+      setError("Impossible de supprimer l'epreuve");
+    } finally {
+      setConfirmDelete({ open: false, id: null });
     }
   };
 
@@ -202,6 +208,14 @@ const AdminDashboard = () => {
           onCreated={() => { fetchData(); setShowCreateModal(false); }} 
         />
       )}
+
+      <ConfirmModal 
+        isOpen={confirmDelete.open}
+        title="Supprimer l'épreuve ?"
+        message="Cette action est irréversible. Toutes les soumissions liées seront également perdues."
+        onConfirm={handleActualDelete}
+        onCancel={() => setConfirmDelete({ open: false, id: null })}
+      />
     </div>
   );
 };

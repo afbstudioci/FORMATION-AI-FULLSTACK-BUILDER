@@ -4,7 +4,7 @@ import api from '../services/api';
 import ExamCard from '../components/ExamCard';
 import { theme } from '../theme';
 import { Search, Loader2, Sparkles } from 'lucide-react';
-import { subscribeToExams, subscribeToSubmissions } from '../services/socket';
+import { subscribeToExams, subscribeToSubmissions, subscribeToDeletedExams } from '../services/socket';
 import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
@@ -53,6 +53,11 @@ const Dashboard = () => {
             : exam
         ));
       }
+    });
+
+    // Écoute temps réel des suppressions d'examens
+    subscribeToDeletedExams((deletedId) => {
+      setExams(prev => prev.filter(e => e._id.toString() !== deletedId.toString()));
     });
 
     return () => clearInterval(timer);
