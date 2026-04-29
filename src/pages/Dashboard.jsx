@@ -43,9 +43,11 @@ const Dashboard = () => {
 
     // Écoute temps réel des soumissions pour mettre à jour le statut "DÉJÀ COMPOSÉ"
     subscribeToSubmissions((submission) => {
-      if (submission.user._id === user?._id) {
+      const submissionUserId = submission.user._id || submission.user;
+      if (submissionUserId.toString() === user?._id?.toString()) {
+        const targetExamId = submission.exam._id || submission.exam;
         setExams(prev => prev.map(exam => 
-          exam._id === (submission.exam._id || submission.exam) 
+          exam._id.toString() === targetExamId.toString() 
             ? { ...exam, hasSubmitted: true } 
             : exam
         ));
