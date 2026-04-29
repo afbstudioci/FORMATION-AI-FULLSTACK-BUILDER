@@ -66,8 +66,8 @@ const SubmissionReview = ({ submission, onClose }) => {
     return `${hours > 0 ? hours + 'H ' : ''}${mins}min`;
   };
 
-  // On s'assure de récupérer les points depuis l'examen lié à la soumission
-  const pointsPerQ = submission.pointsPerQuestion || submission.exam?.pointsPerQuestion || 1;
+  // On s'assure de récupérer les points depuis la soumission (instantané au moment de l'examen)
+  const pointsPerQ = Number(submission.pointsPerQuestion || submission.exam?.pointsPerQuestion || 1);
   const totalPossible = (submission.exam?.questions?.length || 0) * pointsPerQ;
   const isAdmis = submission.score >= (totalPossible / 2);
 
