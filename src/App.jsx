@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import ExamSession from './pages/ExamSession';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSubmissions from './pages/AdminSubmissions';
+import AdminUsers from './pages/AdminUsers';
 import Profile from './pages/Profile';
 import InstallPWA from './components/InstallPWA';
 
@@ -37,6 +38,7 @@ function App() {
           }>
             <Route index element={<AdminDashboard />} />
             <Route path="submissions" element={<AdminSubmissions />} />
+            <Route path="users" element={<AdminUsers />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

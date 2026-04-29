@@ -102,19 +102,27 @@ const AdminDashboard = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '20px',
-            border: `1px solid ${theme.colors.border}`
-          }}>
+            border: `1px solid ${theme.colors.border}`,
+            cursor: idx === 0 ? 'pointer' : 'default'
+          }}
+          onClick={() => idx === 0 && navigate('/admin/users')}
+          >
             <div style={{ 
               background: `${item.color}15`, 
-              color: item.color, 
               padding: '15px', 
-              borderRadius: '12px' 
+              borderRadius: '15px',
+              color: item.color
             }}>
               {React.cloneElement(item.icon, { size: 28 })}
             </div>
             <div>
-              <p style={{ fontSize: '0.9rem', fontWeight: '600', color: theme.colors.textLight, textTransform: 'uppercase' }}>{item.label}</p>
-              <h2 style={{ fontSize: '2rem', fontWeight: '900', color: theme.colors.text }}>{item.value}</h2>
+              <div style={{ fontSize: '2rem', fontWeight: '900', color: theme.colors.text }}>{item.value}</div>
+              <div style={{ fontSize: '0.85rem', color: theme.colors.textLight, fontWeight: '700' }}>{item.label}</div>
+              {idx === 0 && (
+                <div style={{ fontSize: '0.75rem', color: theme.colors.primary, fontWeight: '800', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  Gérer les accès <ChevronRight size={14} />
+                </div>
+              )}
             </div>
           </div>
         ))}

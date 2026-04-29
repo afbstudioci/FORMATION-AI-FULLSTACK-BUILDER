@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { X, Download, CheckCircle2, XCircle, Clock, User, Hash, FileText, Calendar, Award, ShieldCheck } from 'lucide-react';
+import { X, Download, CheckCircle2, XCircle, Clock, User, Hash, FileText, Calendar, Award, ShieldCheck, Mail, Phone } from 'lucide-react';
 import { theme } from '../theme';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -12,7 +12,6 @@ const SubmissionReview = ({ submission, onClose }) => {
     const element = printRef.current;
     const originalStyle = element.style.cssText;
     
-    // On fixe la largeur pour le rendu PDF (Standard A4 ratio-ish)
     element.style.width = '800px';
     element.style.height = 'auto';
 
@@ -28,18 +27,15 @@ const SubmissionReview = ({ submission, onClose }) => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       
-      const imgWidth = 210; // Largeur A4 en mm
-      const pageHeight = 297; // Hauteur A4 en mm
+      const imgWidth = 210; 
+      const pageHeight = 297; 
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
-
       let position = 0;
 
-      // Première page
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
 
-      // Pages suivantes si nécessaire
       while (heightLeft >= 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
@@ -47,7 +43,7 @@ const SubmissionReview = ({ submission, onClose }) => {
         heightLeft -= pageHeight;
       }
 
-      pdf.save(`RAPPORT_OFFICIEL_KEVY_${submission.user.fullname.replace(/\s+/g, '_')}.pdf`);
+      pdf.save(`RAPPORT_OFFICIEL_AFB_STUDIO_${submission.user.fullname.replace(/\s+/g, '_')}.pdf`);
     } finally {
       element.style.cssText = originalStyle;
     }
@@ -74,7 +70,6 @@ const SubmissionReview = ({ submission, onClose }) => {
         initial={{ opacity: 0, y: 100 }} animate={{ opacity: 1, y: 0 }}
         style={{ background: 'white', width: '100%', maxWidth: '1000px', maxHeight: '95vh', borderRadius: '30px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.6)' }}
       >
-        {/* Barre de commande NASA Premium */}
         <div style={{ padding: '20px 40px', borderBottom: `1px solid ${theme.colors.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <div style={{ padding: '12px', background: 'linear-gradient(135deg, #0984e3, #6c5ce7)', borderRadius: '15px', boxShadow: '0 4px 12px rgba(9, 132, 227, 0.3)' }}>
@@ -82,22 +77,20 @@ const SubmissionReview = ({ submission, onClose }) => {
             </div>
             <div>
               <h3 style={{ fontWeight: '900', margin: 0, color: theme.colors.text, fontSize: '1.3rem', letterSpacing: '-0.5px' }}>OFFICIAL ACADEMIC REPORT</h3>
-              <p style={{ fontSize: '0.75rem', color: theme.colors.textLight, fontWeight: '700', textTransform: 'uppercase' }}>Verified by KEVY - Admin System</p>
+              <p style={{ fontSize: '0.75rem', color: theme.colors.textLight, fontWeight: '700', textTransform: 'uppercase' }}>Verified by AFB STUDIO - Administration</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '15px' }}>
             <button onClick={handleDownloadPDF} style={{ background: theme.colors.primary, color: 'white', padding: '14px 30px', borderRadius: '15px', border: 'none', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 10px 20px rgba(9, 132, 227, 0.4)' }}>
-              <Download size={20} /> TÉLÉCHARGER LE PDF (MULTI-PAGES)
+              <Download size={20} /> TÉLÉCHARGER LE PDF NASA
             </button>
             <button onClick={onClose} style={{ background: '#f1f2f6', border: 'none', padding: '14px', borderRadius: '50%', cursor: 'pointer', color: theme.colors.text }}><X size={20} /></button>
           </div>
         </div>
 
-        {/* Content Area */}
         <div style={{ flex: 1, overflowY: 'auto', background: '#f4f7f6', padding: '40px' }}>
           <div ref={printRef} style={{ background: 'white', margin: '0 auto', padding: '80px', width: '100%', color: '#000', position: 'relative' }}>
             
-            {/* NASA Header Section */}
             <div style={{ border: '5px solid #000', padding: '45px', marginBottom: '60px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '50px' }}>
                 <div style={{ textAlign: 'center' }}>
@@ -126,7 +119,6 @@ const SubmissionReview = ({ submission, onClose }) => {
               </div>
             </div>
 
-            {/* Verdict Académique Section */}
             <div style={{ marginBottom: '60px' }}>
               <div style={{ borderBottom: '3px solid #000', paddingBottom: '12px', fontWeight: '900', fontSize: '1.5rem', marginBottom: '30px', display: 'flex', alignItems: 'center', gap: '15px' }}>
                 <ShieldCheck size={28} /> DÉCISION DU CONSEIL ACADÉMIQUE
@@ -137,13 +129,12 @@ const SubmissionReview = ({ submission, onClose }) => {
                   <div style={{ fontSize: '2.5rem', fontWeight: '950', color: isAdmis ? '#52c41a' : '#f5222d', letterSpacing: '2px' }}>{isAdmis ? 'ADMIS' : 'REFUSÉ'}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '1rem', fontWeight: '800', color: '#666', marginBottom: '5px' }}>SCORE DE PRÉCISION</div>
-                  <div style={{ fontSize: '2rem', fontWeight: '900' }}>{((submission.score / totalPossible) * 100).toFixed(1)}%</div>
+                  <div style={{ fontSize: '1rem', fontWeight: '800', color: '#666', marginBottom: '5px' }}>TENTATIVE</div>
+                  <div style={{ fontSize: '2rem', fontWeight: '900' }}>UNIQUE</div>
                 </div>
               </div>
             </div>
 
-            {/* Questions Section */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
               {submission.exam.questions.map((q, idx) => {
                 const subAnswer = submission.answers.find(a => a.questionId.toString() === q._id.toString());
@@ -155,7 +146,7 @@ const SubmissionReview = ({ submission, onClose }) => {
                   <div key={idx} style={{ padding: '40px', border: '2px solid #000', borderRadius: '20px', background: isNotAnswered ? '#fafafa' : (isCorrect ? '#f6ffed' : '#fff1f0'), pageBreakInside: 'avoid' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '25px', alignItems: 'center' }}>
                       <span style={{ fontWeight: '900', fontSize: '1.1rem', color: '#000', background: '#eee', padding: '5px 15px', borderRadius: '5px' }}>QUESTION {idx + 1} / {submission.exam.questions.length}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '900', fontSize: '1.1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '900', fontSize: '1.1rem' }}>
                         {isNotAnswered ? (
                           <span style={{ color: '#888' }}>NON RÉPONDU (0 pts)</span>
                         ) : isCorrect ? (
@@ -186,7 +177,6 @@ const SubmissionReview = ({ submission, onClose }) => {
               })}
             </div>
 
-            {/* Signature Area Reorganized NASA Premium */}
             <div style={{ marginTop: '100px', pageBreakInside: 'avoid' }}>
               <div style={{ borderTop: '4px solid #000', paddingTop: '50px', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '60px' }}>
                 <div>
@@ -201,29 +191,40 @@ const SubmissionReview = ({ submission, onClose }) => {
                       "Le présent rapport d'examen est un document authentique généré par le système AFB EXAM. Il atteste des compétences du candidat sur le module cité. Toute altération rend ce document nul et non avenu."
                     </p>
                   </div>
-                  <div style={{ marginTop: '20px', fontSize: '0.9rem', color: '#666', fontWeight: '700' }}>
+                  <div style={{ marginTop: '20px', fontSize: '0.9rem', color: '#666', fontWeight: '800' }}>
                     Généré électroniquement le {new Date().toLocaleString('fr-FR')} - ID RÉF : {submission._id.toString().toUpperCase()}
                   </div>
                 </div>
 
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.1rem', fontWeight: '900', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px' }}>DIRECTION GÉNÉRALE AFB EXAM</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: '900', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px' }}>DIRECTION GÉNÉRALE AFB STUDIO</div>
                   <div style={{ height: '140px', border: '3px dashed #000', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fcfcfc', borderRadius: '20px', position: 'relative', overflow: 'hidden' }}>
-                    {/* Sceau visuel */}
                     <img src="/logo.png" alt="Sceau" style={{ height: '90px', opacity: 0.1, filter: 'grayscale(1)' }} />
                     <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-20deg)', border: '4px double rgba(9, 132, 227, 0.2)', padding: '10px 20px', borderRadius: '10px', fontSize: '1.2rem', fontWeight: '950', color: 'rgba(9, 132, 227, 0.2)', whiteSpace: 'nowrap' }}>
-                      KEVY - CERTIFIED SYSTEM
+                      AFB STUDIO - CERTIFIED SYSTEM
                     </div>
                   </div>
-                  <div style={{ fontWeight: '950', fontSize: '1.6rem', color: '#000', marginBottom: '5px' }}>KEVY</div>
-                  <div style={{ fontSize: '1.1rem', color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px' }}>ADMINISTRATEUR PRINCIPAL</div>
+                  <div style={{ fontWeight: '950', fontSize: '1.6rem', color: '#000', marginBottom: '5px' }}>AFB STUDIO</div>
+                  <div style={{ fontSize: '1.1rem', color: theme.colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px' }}>ADMINISTRATION CENTRALE</div>
                 </div>
               </div>
             </div>
 
-            {/* Footer NASA Professional */}
-            <div style={{ marginTop: '80px', textAlign: 'center', fontSize: '0.9rem', color: '#aaa', letterSpacing: '5px', borderTop: '1px solid #eee', paddingTop: '30px', fontWeight: '800' }}>
-              AFB EXAM SYSTEM v4.0 - MISSION : FORMATION AI FULLSTACK BUILDER 
+            <div style={{ marginTop: '80px', borderTop: '1px solid #eee', paddingTop: '40px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '50px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#666', fontWeight: '700' }}>
+                  <Mail size={18} color={theme.colors.primary} /> afbstudioci@gmail.com
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#666', fontWeight: '700' }}>
+                  <Phone size={18} color={theme.colors.primary} /> 225 07 68 38 87 70
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#666', fontWeight: '700' }}>
+                  <Phone size={18} color={theme.colors.primary} /> 229 43 70 64 02
+                </div>
+              </div>
+              <div style={{ marginTop: '30px', textAlign: 'center', fontSize: '0.9rem', color: '#bbb', letterSpacing: '5px', fontWeight: '800' }}>
+                AFB EXAM SYSTEM
+              </div>
             </div>
           </div>
         </div>
