@@ -85,11 +85,11 @@ const Layout = () => {
               fontWeight: 'bold',
               overflow: 'hidden'
             }}>
-              {user?.profilePic ? (
-                <img src={user.profilePic} alt="P" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                user?.fullname?.charAt(0).toUpperCase()
-              )}
+              <img 
+                src={user?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullname || 'User')}&background=random&color=fff`} 
+                alt="Profile" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              />
             </div>
             <div className="hide-mobile" style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: '0.8rem', fontWeight: '700', color: theme.colors.text }}>{user?.fullname?.split(' ')[0]}</span>
