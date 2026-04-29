@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Download, Loader2, User, FileCheck, ShieldAlert, ArrowLeft, Search } from 'lucide-react';
+import { Download, Loader2, User, FileCheck, ShieldAlert, ArrowLeft, Search, Eye } from 'lucide-react';
 import api from '../services/api';
 import { theme } from '../theme';
 import Alert from '../components/Alert';
+import SubmissionReview from '../components/SubmissionReview';
 
 const AdminSubmissions = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { examId, examTitle } = location.state || {};
@@ -143,15 +145,26 @@ const AdminSubmissions = () => {
                     {new Date(sub.createdAt).toLocaleString()}
                   </td>
                   <td style={{ padding: '20px', textAlign: 'right' }}>
-                    <button 
-                      onClick={() => handleDownloadPDF(sub._id, sub.user?.matricule)}
-                      style={{ 
-                        background: theme.colors.primary, color: 'white', padding: '10px 15px', borderRadius: '8px', 
-                        fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', fontSize: '0.85rem'
-                      }}
-                    >
-                      <Download size={16} /> Rapport PDF
-                    </button>
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                      <button 
+                        onClick={() => setSelectedSubmission(sub)}
+                        style={{ 
+                          background: '#f8f9fa', color: theme.colors.text, padding: '10px 15px', borderRadius: '8px', 
+                          fontWeight: '700', border: `1px solid ${theme.colors.border}`, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem'
+                        }}
+                      >
+                        <Eye size={16} /> Voir Copie
+                      </button>
+                      <button 
+                        onClick={() => handleDownloadPDF(sub._id, sub.user?.matricule)}
+                        style={{ 
+                          background: theme.colors.primary, color: 'white', padding: '10px 15px', borderRadius: '8px', 
+                          fontWeight: '700', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem'
+                        }}
+                      >
+                        <Download size={16} /> PDF
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -159,6 +172,13 @@ const AdminSubmissions = () => {
           </tbody>
         </table>
       </div>
+
+      {selectedSubmission && (
+        <SubmissionReview 
+          submission={selectedSubmission} 
+          onClose={() => setSelectedSubmission(null)} 
+        />
+      )}
     </div>
   );
 };

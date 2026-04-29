@@ -27,17 +27,18 @@ const Layout = () => {
           style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
         >
           <div style={{ 
-            background: theme.colors.primary, 
-            padding: '6px', 
+            width: '32px',
+            height: '32px',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            overflow: 'hidden'
           }}>
-            <GraduationCap color="white" size={20} />
+            <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
-          <h1 style={{ fontSize: '1.1rem', color: theme.colors.text, fontWeight: '800', letterSpacing: '-0.5px' }}>
-            AFB<span style={{ color: theme.colors.primary }} className="hide-mobile">EXAM</span>
+          <h1 style={{ fontSize: '1.1rem', color: theme.colors.text, fontWeight: '900', letterSpacing: '-0.5px' }}>
+            AFB<span style={{ color: theme.colors.primary }}>EXAM</span>
           </h1>
         </div>
 

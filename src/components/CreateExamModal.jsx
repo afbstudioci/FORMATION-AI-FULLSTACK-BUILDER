@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Trash2, Save, Calendar, Clock, Sparkles, Wand2, Loader2 } from 'lucide-react';
-import DatePicker from 'react-datepicker';
+import DatePicker, { registerLocale } from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import { fr } from 'date-fns/locale/fr';
 import api from '../services/api';
 import { theme } from '../theme';
+
+registerLocale('fr', fr);
 
 const CreateExamModal = ({ onClose, onCreated }) => {
   const [formData, setFormData] = useState({
@@ -19,6 +22,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
   const [aiConfig, setAiConfig] = useState({ qCount: 5, optCount: 4 });
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAiPanel, setShowAiPanel] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAiGenerate = async () => {
     if (!aiContent) return alert("Veuillez coller le contenu de la lecon.");
@@ -84,15 +88,20 @@ const CreateExamModal = ({ onClose, onCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     if (formData.questions.some(q => !q.correctAnswer || q.options.some(opt => opt.trim() === ''))) {
       alert("Veuillez remplir toutes les questions et selectionner une bonne reponse.");
       return;
     }
+
+    setIsSubmitting(true);
     try {
       await api.post('/exams', formData);
       onCreated();
     } catch (err) {
       alert(err.response?.data?.message || "Erreur de creation");
+      setIsSubmitting(false);
     }
   };
 
@@ -159,9 +168,11 @@ const CreateExamModal = ({ onClose, onCreated }) => {
                 selected={formData.startTime}
                 onChange={date => setFormData({...formData, startTime: date})}
                 showTimeSelect
-                dateFormat="Pp"
+                locale="fr"
+                dateFormat="dd/MM/yyyy HH:mm"
+                timeFormat="HH:mm"
+                timeIntervals={15}
                 className="custom-datepicker"
-                style={{ width: '100%' }}
               />
             </div>
             <div>
@@ -170,7 +181,10 @@ const CreateExamModal = ({ onClose, onCreated }) => {
                 selected={formData.endTime}
                 onChange={date => setFormData({...formData, endTime: date})}
                 showTimeSelect
-                dateFormat="Pp"
+                locale="fr"
+                dateFormat="dd/MM/yyyy HH:mm"
+                timeFormat="HH:mm"
+                timeIntervals={15}
                 className="custom-datepicker"
               />
             </div>
@@ -208,8 +222,9 @@ const CreateExamModal = ({ onClose, onCreated }) => {
             </div>
           ))}
 
-          <button type="submit" style={{ width: '100%', padding: '20px', background: theme.colors.primary, color: 'white', borderRadius: '15px', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', marginTop: '20px', fontSize: '1.1rem', boxShadow: `0 12px 30px ${theme.colors.primary}40` }}>
-            <Save size={24} /> PUBLIER L'EPREUVE MAINTENANT
+          <button type="submit" disabled={isSubmitting} style={{ width: '100%', padding: '20px', background: isSubmitting ? theme.colors.textLight : theme.colors.primary, color: 'white', borderRadius: '15px', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', marginTop: '20px', fontSize: '1.1rem', boxShadow: isSubmitting ? 'none' : `0 12px 30px ${theme.colors.primary}40`, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}>
+            {isSubmitting ? <Loader2 className="animate-spin" /> : <Save size={24} />} 
+            {isSubmitting ? 'PUBLICATION EN COURS...' : "PUBLIER L'EPREUVE MAINTENANT"}
           </button>
         </form>
       </motion.div>
