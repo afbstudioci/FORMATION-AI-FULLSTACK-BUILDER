@@ -1,0 +1,52 @@
+:root {
+  --primary: #0984e3;
+  --secondary: #6c5ce7;
+  --background: #f5f6fa;
+  --surface: #ffffff;
+  --text: #2d3436;
+  --text-light: #636e72;
+  --success: #00b894;
+  --error: #d63031;
+  --border: #dfe6e9;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+input {
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+/* Animations globales */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
