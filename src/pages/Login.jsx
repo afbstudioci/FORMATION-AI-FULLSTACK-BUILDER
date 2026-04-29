@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogIn, Lock, Hash } from 'lucide-react';
+import { LogIn, Lock, Hash, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { theme } from '../theme';
@@ -11,6 +11,7 @@ const Login = () => {
   const [formData, setFormData] = useState({ matricule: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -89,7 +90,8 @@ const Login = () => {
                   border: `2px solid ${theme.colors.border}`,
                   fontSize: '0.95rem',
                   color: theme.colors.text,
-                  backgroundColor: theme.colors.background
+                  backgroundColor: theme.colors.background,
+                  outline: 'none'
                 }}
               />
             </div>
@@ -100,21 +102,41 @@ const Login = () => {
             <div style={{ position: 'relative' }}>
               <Lock style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: theme.colors.textLight }} size={18} />
               <input 
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 style={{
                   width: '100%',
-                  padding: '14px 14px 14px 45px',
+                  padding: '14px 45px 14px 45px',
                   borderRadius: theme.borderRadius.medium,
                   border: `2px solid ${theme.colors.border}`,
                   fontSize: '0.95rem',
                   color: theme.colors.text,
-                  backgroundColor: theme.colors.background
+                  backgroundColor: theme.colors.background,
+                  outline: 'none'
                 }}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: theme.colors.textLight,
+                  display: 'flex',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  padding: '4px'
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 

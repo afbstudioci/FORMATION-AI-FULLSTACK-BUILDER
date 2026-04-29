@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { UserPlus, User, Lock, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { UserPlus, User, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
 import { theme } from '../theme';
 import Alert from '../components/Alert';
@@ -10,6 +10,7 @@ const Register = () => {
   const [formData, setFormData] = useState({ fullname: '', password: '' });
   const [info, setInfo] = useState({ message: '', type: 'error' });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [matriculeGenere, setMatriculeGenere] = useState('');
   const navigate = useNavigate();
 
@@ -89,7 +90,9 @@ const Register = () => {
                       borderRadius: theme.borderRadius.medium,
                       border: `2px solid ${theme.colors.border}`,
                       fontSize: '0.95rem',
-                      backgroundColor: theme.colors.background
+                      color: theme.colors.text,
+                      backgroundColor: theme.colors.background,
+                      outline: 'none'
                     }}
                   />
                 </div>
@@ -100,20 +103,41 @@ const Register = () => {
                 <div style={{ position: 'relative' }}>
                   <Lock style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: theme.colors.textLight }} size={18} />
                   <input 
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     placeholder="Choisissez un mot de passe"
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                     style={{
                       width: '100%',
-                      padding: '14px 14px 14px 45px',
+                      padding: '14px 45px 14px 45px',
                       borderRadius: theme.borderRadius.medium,
                       border: `2px solid ${theme.colors.border}`,
                       fontSize: '0.95rem',
-                      backgroundColor: theme.colors.background
+                      color: theme.colors.text,
+                      backgroundColor: theme.colors.background,
+                      outline: 'none'
                     }}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: theme.colors.textLight,
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      padding: '4px'
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
 
