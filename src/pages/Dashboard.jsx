@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import ExamCard from '../components/ExamCard';
 import { theme } from '../theme';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, Sparkles } from 'lucide-react';
+import { subscribeToExams } from '../services/socket';
 
 const Dashboard = () => {
   const [exams, setExams] = useState([]);
@@ -23,6 +24,11 @@ const Dashboard = () => {
       }
     };
     fetchExams();
+
+    // Ecoute temps reel des nouveaux examens
+    subscribeToExams((newExam) => {
+      setExams(prev => [newExam, ...prev]);
+    });
   }, []);
 
   const filteredExams = exams.filter(exam => 

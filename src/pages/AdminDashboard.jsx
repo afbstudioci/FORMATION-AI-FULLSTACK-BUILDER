@@ -5,6 +5,7 @@ import api from '../services/api';
 import { theme } from '../theme';
 import CreateExamModal from '../components/CreateExamModal';
 import Alert from '../components/Alert';
+import { subscribeToSubmissions } from '../services/socket';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ totalStudents: 0, totalExams: 0, totalSubmissions: 0 });
@@ -31,6 +32,12 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchData();
+
+    // Ecoute temps reel des nouvelles copies
+    subscribeToSubmissions((newSub) => {
+      setStats(prev => ({ ...prev, totalSubmissions: prev.totalSubmissions + 1 }));
+      // Optionnel : Notification sonore ou visuelle ici
+    });
   }, []);
 
   const handleDeleteExam = async (id) => {
