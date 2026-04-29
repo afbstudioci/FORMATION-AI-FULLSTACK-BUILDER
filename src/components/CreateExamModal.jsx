@@ -15,6 +15,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
     description: '',
     startTime: new Date(),
     endTime: new Date(Date.now() + 3600000), // +1h par défaut
+    pointsPerQuestion: 2,
     questions: [{ text: '', options: ['', ''], correctAnswer: '' }]
   });
 
@@ -187,6 +188,17 @@ const CreateExamModal = ({ onClose, onCreated }) => {
                 timeIntervals={15}
                 className="custom-datepicker"
               />
+            </div>
+            <div style={{ gridColumn: 'span 2' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '800', marginBottom: '10px', fontSize: '0.85rem', color: theme.colors.primary }}><Plus size={16} /> BAREME : POINTS PAR QUESTION (+X / -X)</label>
+              <input 
+                type="number" 
+                min="1" 
+                value={formData.pointsPerQuestion} 
+                onChange={e => setFormData({...formData, pointsPerQuestion: parseInt(e.target.value)})} 
+                style={{ width: '150px', padding: '14px', borderRadius: '12px', border: `2px solid ${theme.colors.border}`, fontSize: '1rem', outline: 'none', fontWeight: '800' }} 
+              />
+              <p style={{ fontSize: '0.8rem', color: theme.colors.textLight, marginTop: '5px' }}>Chaque bonne réponse donne +{formData.pointsPerQuestion}, chaque erreur retire -{formData.pointsPerQuestion}. Pas de réponse = 0.</p>
             </div>
           </div>
 

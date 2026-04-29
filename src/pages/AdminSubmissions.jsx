@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Download, Loader2, User, FileCheck, ShieldAlert, ArrowLeft, Search, Eye } from 'lucide-react';
+import { Download, Loader2, User, FileCheck, ShieldAlert, ArrowLeft, Search, Eye, Trash2 } from 'lucide-react';
 import api from '../services/api';
 import { theme } from '../theme';
 import Alert from '../components/Alert';
@@ -49,6 +49,16 @@ const AdminSubmissions = () => {
       link.remove();
     } catch (err) {
       setError("Erreur lors de la génération du PDF");
+    }
+  };
+
+  const handleDeleteSubmission = async (id) => {
+    if (!window.confirm("Supprimer définitivement cette copie ?")) return;
+    try {
+      await api.delete(`/admin/submissions/${id}`);
+      fetchSubmissions();
+    } catch (err) {
+      setError("Erreur lors de la suppression");
     }
   };
 
@@ -162,6 +172,16 @@ const AdminSubmissions = () => {
                         }}
                       >
                         <Download size={16} /> PDF NASA
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteSubmission(sub._id)}
+                        style={{ 
+                          background: 'white', color: theme.colors.error, padding: '10px', borderRadius: '8px', 
+                          border: `1px solid ${theme.colors.error}`, display: 'flex', alignItems: 'center'
+                        }}
+                        title="Supprimer la copie"
+                      >
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </td>
