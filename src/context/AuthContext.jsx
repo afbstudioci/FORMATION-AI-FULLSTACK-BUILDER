@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { socket } from '../services/socket';
+import Alert from '../components/Alert';
 
 const AuthContext = createContext();
 
@@ -26,20 +27,12 @@ export const AuthProvider = ({ children }) => {
 
   // Écoute temps réel du changement de rôle
   useEffect(() => {
-    if (!user) return;
-
     socket.on('role_updated', (data) => {
-      if (data.userId === user._id) {
+      if (data.userId === user?._id) {
         const updatedUser = { ...user, role: data.newRole };
         setUser(updatedUser);
         localStorage.setItem('userData', JSON.stringify(updatedUser));
-        
-        // Notification visuelle
-        alert(`Vos droits ont été mis à jour : vous êtes désormais ${data.newRole.toUpperCase()}`);
-        
-        // Redirection si nécessaire (ex: vers le dashboard admin)
-        if (data.newRole === 'admin') window.location.href = '/admin';
-        else window.location.href = '/';
+        setRoleUpdateNotification(`Vos droits ont été mis à jour : vous êtes désormais ${data.newRole.toUpperCase()}`);
       }
     });
 

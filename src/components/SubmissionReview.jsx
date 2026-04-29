@@ -4,9 +4,11 @@ import { X, Download, CheckCircle2, XCircle, Clock, User, Hash, FileText, Calend
 import { theme } from '../theme';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import Alert from './Alert';
 
 const SubmissionReview = ({ submission, onClose }) => {
   const printRef = useRef();
+  const [error, setError] = useState('');
 
   const handleDownloadPDF = async () => {
     const element = printRef.current;
@@ -73,6 +75,7 @@ const SubmissionReview = ({ submission, onClose }) => {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(20px)' }}>
+      <Alert message={error} onClose={() => setError('')} />
       <motion.div 
         initial={{ opacity: 0, y: 100 }} animate={{ opacity: 1, y: 0 }}
         style={{ background: 'white', width: '100%', maxWidth: '1000px', maxHeight: '95vh', borderRadius: '30px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.6)' }}

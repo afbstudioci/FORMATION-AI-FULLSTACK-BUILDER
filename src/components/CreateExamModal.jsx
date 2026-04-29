@@ -7,6 +7,8 @@ import { fr } from 'date-fns/locale/fr';
 import api from '../services/api';
 import { theme } from '../theme';
 
+import Alert from './Alert';
+
 registerLocale('fr', fr);
 
 const CreateExamModal = ({ onClose, onCreated }) => {
@@ -24,9 +26,10 @@ const CreateExamModal = ({ onClose, onCreated }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAiPanel, setShowAiPanel] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleAiGenerate = async () => {
-    if (!aiContent) return alert("Veuillez coller le contenu de la lecon.");
+    if (!aiContent) return setError("Veuillez coller le contenu de la lecon.");
     setIsGenerating(true);
     try {
       const { data } = await api.post('/exams/generate', { 
@@ -42,7 +45,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
       });
       setShowAiPanel(false);
     } catch (err) {
-      alert("Erreur lors de la generation IA");
+      setError("Erreur lors de la generation IA");
     } finally {
       setIsGenerating(false);
     }
@@ -92,7 +95,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
     if (isSubmitting) return;
 
     if (formData.questions.some(q => !q.correctAnswer || q.options.some(opt => opt.trim() === ''))) {
-      alert("Veuillez remplir toutes les questions et selectionner une bonne reponse.");
+      setError("Veuillez remplir toutes les questions et selectionner une bonne reponse.");
       return;
     }
 
@@ -101,13 +104,15 @@ const CreateExamModal = ({ onClose, onCreated }) => {
       await api.post('/exams', formData);
       onCreated();
     } catch (err) {
-      alert(err.response?.data?.message || "Erreur de creation");
+      setError(err.response?.data?.message || "Erreur de creation");
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(8px)' }}>
+    <>
+      <Alert message={error} onClose={() => setError('')} />
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(15px)' }}>
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
         style={{ background: 'white', width: '100%', maxWidth: '950px', maxHeight: '95vh', borderRadius: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: theme.shadows.premium }}
