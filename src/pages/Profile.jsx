@@ -65,7 +65,7 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <div style={{ height: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Activity className="animate-spin" color={theme.colors.primary} size={40} /></div>;
+  if (loading || !profileData) return <div style={{ height: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Activity className="animate-spin" color={theme.colors.primary} size={40} /></div>;
 
   const isStudent = profileData.user.role === 'student';
 
