@@ -29,6 +29,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
   const [error, setError] = useState('');
 
   const handleAiGenerate = async () => {
+    console.log("Démarrage génération IA avec config:", aiConfig);
     if (!aiContent) return setError("Veuillez coller le contenu de la lecon.");
     setIsGenerating(true);
     try {
@@ -37,6 +38,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
         questionCount: aiConfig.qCount, 
         optionsCount: aiConfig.optCount 
       });
+      console.log("Données reçues de l'IA:", data);
       setFormData({
         ...formData,
         title: data.title,
@@ -45,6 +47,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
       });
       setShowAiPanel(false);
     } catch (err) {
+      console.error("Erreur IA détaillée:", err.response?.data || err.message);
       setError("Erreur lors de la generation IA");
     } finally {
       setIsGenerating(false);
@@ -92,6 +95,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Tentative de publication d'examen. Data:", formData);
     if (isSubmitting) return;
 
     if (formData.questions.some(q => !q.correctAnswer || q.options.some(opt => opt.trim() === ''))) {
@@ -104,6 +108,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
       await api.post('/exams', formData);
       onCreated();
     } catch (err) {
+      console.error("Erreur publication détaillée:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Erreur de creation");
       setIsSubmitting(false);
     }
@@ -143,11 +148,11 @@ const CreateExamModal = ({ onClose, onCreated }) => {
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>Questions:</span>
-                    <input type="number" min="1" max="20" value={aiConfig.qCount} onChange={e => setAiConfig({...aiConfig, qCount: parseInt(e.target.value)})} style={{ width: '60px', padding: '8px', borderRadius: '8px', border: `1px solid ${theme.colors.border}` }} />
+                    <input type="number" min="1" max="20" value={isNaN(aiConfig.qCount) ? '' : aiConfig.qCount} onChange={e => setAiConfig({...aiConfig, qCount: parseInt(e.target.value)})} style={{ width: '60px', padding: '8px', borderRadius: '8px', border: `1px solid ${theme.colors.border}` }} />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span style={{ fontSize: '0.85rem', fontWeight: '700' }}>Options:</span>
-                    <input type="number" min="2" max="6" value={aiConfig.optCount} onChange={e => setAiConfig({...aiConfig, optCount: parseInt(e.target.value)})} style={{ width: '60px', padding: '8px', borderRadius: '8px', border: `1px solid ${theme.colors.border}` }} />
+                    <input type="number" min="2" max="6" value={isNaN(aiConfig.optCount) ? '' : aiConfig.optCount} onChange={e => setAiConfig({...aiConfig, optCount: parseInt(e.target.value)})} style={{ width: '60px', padding: '8px', borderRadius: '8px', border: `1px solid ${theme.colors.border}` }} />
                   </div>
                   <button type="button" onClick={handleAiGenerate} disabled={isGenerating} style={{ flex: 1, background: theme.colors.secondary, color: 'white', padding: '12px', borderRadius: '12px', fontWeight: '800', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                     {isGenerating ? <Loader2 className="animate-spin" /> : <><Sparkles size={18} /> Generer l'examen instantanement</>}
@@ -199,7 +204,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
               <input 
                 type="number" 
                 min="1" 
-                value={formData.pointsPerQuestion} 
+                value={isNaN(formData.pointsPerQuestion) ? '' : formData.pointsPerQuestion} 
                 onChange={e => setFormData({...formData, pointsPerQuestion: parseInt(e.target.value)})} 
                 style={{ width: '150px', padding: '14px', borderRadius: '12px', border: `2px solid ${theme.colors.border}`, fontSize: '1rem', outline: 'none', fontWeight: '800' }} 
               />
