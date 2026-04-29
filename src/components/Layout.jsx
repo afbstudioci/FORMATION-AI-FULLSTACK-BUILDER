@@ -3,18 +3,31 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, User, GraduationCap, LayoutDashboard } from 'lucide-react';
 import { theme } from '../theme';
+import { useGlobalSocket } from '../hooks/useGlobalSocket';
+import Alert from './Alert';
 
 const Layout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Initialisation du hook global pour écouter les événements transverses
+  const { notification, clearNotification } = useGlobalSocket();
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: theme.colors.background }}>
-      <nav style={{ 
-        background: theme.colors.surface, 
-        padding: '0.75rem 1rem', 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+
+      {/* Affichage global des notifications pour l'administrateur */}
+      {notification && (
+        <div style={{ position: 'fixed', top: '80px', right: '20px', zIndex: 1000, minWidth: '300px' }}>
+          <Alert message={notification} onClose={clearNotification} type="success" />
+        </div>
+      )}
+
+      <nav style={{
+        background: theme.colors.surface,
+        padding: '0.75rem 1rem',
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
         boxShadow: theme.shadows.soft,
         position: 'sticky',
@@ -22,11 +35,11 @@ const Layout = () => {
         zIndex: 100,
         borderBottom: `1px solid ${theme.colors.border}`
       }}>
-        <div 
-          onClick={() => navigate('/')} 
+        <div
+          onClick={() => navigate('/')}
           style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
         >
-          <div style={{ 
+          <div style={{
             width: '32px',
             height: '32px',
             borderRadius: '8px',
@@ -44,7 +57,7 @@ const Layout = () => {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           {user?.role === 'admin' && (
-            <button 
+            <button
               onClick={() => navigate('/admin')}
               style={{
                 background: 'transparent',
@@ -61,11 +74,11 @@ const Layout = () => {
             </button>
           )}
 
-          <div 
+          <div
             onClick={() => navigate('/profile')}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
               gap: '10px',
               padding: '4px 8px',
               background: theme.colors.background,
@@ -73,10 +86,10 @@ const Layout = () => {
               cursor: 'pointer'
             }}
           >
-            <div style={{ 
-              width: '30px', 
-              height: '30px', 
-              borderRadius: '50%', 
+            <div style={{
+              width: '30px',
+              height: '30px',
+              borderRadius: '50%',
               background: theme.colors.secondary,
               display: 'flex',
               alignItems: 'center',
@@ -85,10 +98,10 @@ const Layout = () => {
               fontWeight: 'bold',
               overflow: 'hidden'
             }}>
-              <img 
-                src={user?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullname || 'User')}&background=random&color=fff`} 
-                alt="Profile" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              <img
+                src={user?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullname || 'User')}&background=random&color=fff`}
+                alt="Profile"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
             <div className="hide-mobile" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -96,12 +109,12 @@ const Layout = () => {
             </div>
           </div>
 
-          <button 
+          <button
             onClick={logout}
-            style={{ 
-              background: 'rgba(214, 48, 49, 0.1)', 
-              color: theme.colors.error, 
-              padding: '8px', 
+            style={{
+              background: 'rgba(214, 48, 49, 0.1)',
+              color: theme.colors.error,
+              padding: '8px',
               borderRadius: '8px'
             }}
           >

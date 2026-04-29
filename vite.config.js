@@ -42,11 +42,19 @@ export default defineConfig({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                maxAgeSeconds: 60 * 60 * 24 * 365
               },
               cacheableResponse: {
                 statuses: [0, 200]
               }
+            }
+          },
+          {
+            // Exclusion stricte du cache pour les appels API
+            urlPattern: /\/api\/.*/i,
+            handler: 'NetworkOnly',
+            options: {
+              cacheName: 'api-cache',
             }
           }
         ]

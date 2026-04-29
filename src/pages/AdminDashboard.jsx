@@ -1,3 +1,4 @@
+//src/pages/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, FileText, Users, Download, Loader2, Trash2, Calendar, Clock, ChevronRight } from 'lucide-react';
@@ -6,7 +7,7 @@ import { theme } from '../theme';
 import CreateExamModal from '../components/CreateExamModal';
 import ConfirmModal from '../components/ConfirmModal';
 import Alert from '../components/Alert';
-import { subscribeToSubmissions } from '../services/socket';
+import { subscribeToSubmissions, subscribeToExams, subscribeToDeletedExams, subscribeToUserRegistered } from '../services/socket';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ totalStudents: 0, totalExams: 0, totalSubmissions: 0 });
@@ -26,7 +27,7 @@ const AdminDashboard = () => {
       setStats(statsRes.data);
       setExams(examsRes.data);
     } catch (err) {
-      setError("Erreur lors de la recuperation des donnees");
+      setError("Erreur lors de la récupération des données");
     } finally {
       setLoading(false);
     }
@@ -35,10 +36,29 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchData();
 
-    // Ecoute temps reel des nouvelles copies
+    // Écoute temps réel des nouvelles copies
     subscribeToSubmissions((newSub) => {
       setStats(prev => ({ ...prev, totalSubmissions: prev.totalSubmissions + 1 }));
-      // Optionnel : Notification sonore ou visuelle ici
+    });
+
+    // Écoute temps réel des nouveaux étudiants inscrits
+    subscribeToUserRegistered((newUser) => {
+      setStats(prev => ({ ...prev, totalStudents: prev.totalStudents + 1 }));
+    });
+
+    // Écoute temps réel des nouveaux examens
+    subscribeToExams((newExam) => {
+      setStats(prev => ({ ...prev, totalExams: prev.totalExams + 1 }));
+      setExams(prev => {
+        if (prev.some(e => e._id === newExam._id)) return prev;
+        return [newExam, ...prev];
+      });
+    });
+
+    // Écoute temps réel des suppressions d'examens
+    subscribeToDeletedExams((deletedId) => {
+      setStats(prev => ({ ...prev, totalExams: Math.max(0, prev.totalExams - 1) }));
+      setExams(prev => prev.filter(e => e._id !== deletedId));
     });
   }, []);
 
@@ -49,9 +69,9 @@ const AdminDashboard = () => {
   const handleActualDelete = async () => {
     try {
       await api.delete(`/exams/${confirmDelete.id}`);
-      fetchData();
+      // L'appel API suffit, le websocket (subscribeToDeletedExams) actualise la liste automatiquement
     } catch (err) {
-      setError("Impossible de supprimer l'epreuve");
+      setError("Impossible de supprimer l'épreuve");
     } finally {
       setConfirmDelete({ open: false, id: null });
     }
@@ -73,7 +93,7 @@ const AdminDashboard = () => {
           <h2 style={{ fontWeight: '900', color: theme.colors.text, letterSpacing: '-1px' }}>Dashboard Admin</h2>
           <p style={{ color: theme.colors.textLight, marginTop: '5px', fontSize: '0.9rem' }}>Gérez vos épreuves et suivez les performances</p>
         </div>
-        <button 
+        <button
           onClick={() => setShowCreateModal(true)}
           style={{
             background: theme.colors.primary,
@@ -89,21 +109,21 @@ const AdminDashboard = () => {
             width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
-          <Plus size={20} /> Nouvelle Epreuve
+          <Plus size={20} /> Nouvelle Épreuve
         </button>
       </div>
 
       {/* Cartes de statistiques */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px' }}>
         {[
-          { label: 'Etudiants Inscrits', value: stats.totalStudents, icon: <Users />, color: theme.colors.primary },
-          { label: 'Epreuves Publiees', value: stats.totalExams, icon: <FileText />, color: theme.colors.secondary },
+          { label: 'Étudiants Inscrits', value: stats.totalStudents, icon: <Users />, color: theme.colors.primary },
+          { label: 'Épreuves Publiées', value: stats.totalExams, icon: <FileText />, color: theme.colors.secondary },
           { label: 'Copies Rendues', value: stats.totalSubmissions, icon: <Download />, color: theme.colors.success }
         ].map((item, idx) => (
-          <div key={idx} style={{ 
-            background: theme.colors.surface, 
-            padding: '30px', 
-            borderRadius: theme.borderRadius.large, 
+          <div key={idx} style={{
+            background: theme.colors.surface,
+            padding: '30px',
+            borderRadius: theme.borderRadius.large,
             boxShadow: theme.shadows.soft,
             display: 'flex',
             alignItems: 'center',
@@ -111,11 +131,11 @@ const AdminDashboard = () => {
             border: `1px solid ${theme.colors.border}`,
             cursor: idx === 0 ? 'pointer' : 'default'
           }}
-          onClick={() => idx === 0 && navigate('/admin/users')}
+            onClick={() => idx === 0 && navigate('/admin/users')}
           >
-            <div style={{ 
-              background: `${item.color}15`, 
-              padding: '15px', 
+            <div style={{
+              background: `${item.color}15`,
+              padding: '15px',
               borderRadius: '15px',
               color: item.color
             }}>
@@ -134,37 +154,37 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      {/* Liste des Epreuves */}
-      <div style={{ 
-        background: theme.colors.surface, 
-        borderRadius: theme.borderRadius.large, 
+      {/* Liste des Épreuves */}
+      <div style={{
+        background: theme.colors.surface,
+        borderRadius: theme.borderRadius.large,
         boxShadow: theme.shadows.soft,
         border: `1px solid ${theme.colors.border}`,
         overflow: 'hidden'
       }}>
         <div style={{ padding: '25px', borderBottom: `1px solid ${theme.colors.border}`, background: '#fcfcfc' }}>
-          <h2 style={{ fontWeight: '800', fontSize: '1.2rem' }}>Epreuves en cours</h2>
+          <h2 style={{ fontWeight: '800', fontSize: '1.2rem' }}>Épreuves en cours</h2>
         </div>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {exams.length === 0 ? (
             <div style={{ padding: '60px', textAlign: 'center', color: theme.colors.textLight }}>
-              Aucune epreuve creee pour le moment.
+              Aucune épreuve créée pour le moment.
             </div>
           ) : (
             exams.map((exam) => (
-              <div key={exam._id} className="mobile-stack" style={{ 
-                padding: '25px', 
-                borderBottom: `1px solid ${theme.colors.border}`, 
-                display: 'flex', 
-                alignItems: 'center', 
+              <div key={exam._id} className="mobile-stack" style={{
+                padding: '25px',
+                borderBottom: `1px solid ${theme.colors.border}`,
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '20px'
               }}>
                 <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                  <div className="hide-mobile" style={{ 
-                    width: '45px', height: '45px', background: theme.colors.background, 
-                    borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.colors.primary 
+                  <div className="hide-mobile" style={{
+                    width: '45px', height: '45px', background: theme.colors.background,
+                    borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.colors.primary
                   }}>
                     <FileText size={22} />
                   </div>
@@ -178,18 +198,18 @@ const AdminDashboard = () => {
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px', width: window.innerWidth < 768 ? '100%' : 'auto' }}>
-                  <button 
+                  <button
                     onClick={() => navigate('/admin/submissions', { state: { examId: exam._id, examTitle: exam.title } })}
-                    style={{ 
-                      flex: 1, padding: '10px 18px', borderRadius: '8px', background: theme.colors.background, 
+                    style={{
+                      flex: 1, padding: '10px 18px', borderRadius: '8px', background: theme.colors.background,
                       color: theme.colors.text, fontWeight: '700', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                     }}
                   >
                     Copies <ChevronRight size={16} />
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleDeleteExam(exam._id)}
-                    style={{ 
+                    style={{
                       padding: '10px', borderRadius: '8px', background: '#fff0f0', color: theme.colors.error, border: 'none'
                     }}
                   >
@@ -203,13 +223,13 @@ const AdminDashboard = () => {
       </div>
 
       {showCreateModal && (
-        <CreateExamModal 
-          onClose={() => setShowCreateModal(false)} 
-          onCreated={() => { fetchData(); setShowCreateModal(false); }} 
+        <CreateExamModal
+          onClose={() => setShowCreateModal(false)}
+          onCreated={() => setShowCreateModal(false)}
         />
       )}
 
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={confirmDelete.open}
         title="Supprimer l'épreuve ?"
         message="Cette action est irréversible. Toutes les soumissions liées seront également perdues."

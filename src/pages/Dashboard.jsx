@@ -1,9 +1,10 @@
+//src/pages/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import ExamCard from '../components/ExamCard';
 import { theme } from '../theme';
-import { Search, Loader2, Sparkles } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { subscribeToExams, subscribeToSubmissions, subscribeToDeletedExams } from '../services/socket';
 import { useAuth } from '../context/AuthContext';
 
@@ -19,7 +20,6 @@ const Dashboard = () => {
     const fetchExams = async () => {
       try {
         const { data } = await api.get('/exams');
-        console.log("Examens reçus du serveur:", data.map(e => ({ title: e.title, hasSubmitted: e.hasSubmitted })));
         setExams(data);
       } catch (err) {
         console.error('Erreur chargement examens', err);
@@ -48,9 +48,9 @@ const Dashboard = () => {
       const submissionUserId = submission.user._id || submission.user;
       if (submissionUserId.toString() === user?._id?.toString()) {
         const targetExamId = submission.exam._id || submission.exam;
-        setExams(prev => prev.map(exam => 
-          exam._id.toString() === targetExamId.toString() 
-            ? { ...exam, hasSubmitted: true } 
+        setExams(prev => prev.map(exam =>
+          exam._id.toString() === targetExamId.toString()
+            ? { ...exam, hasSubmitted: true }
             : exam
         ));
       }
@@ -64,7 +64,7 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, [user]);
 
-  const filteredExams = exams.filter(exam => 
+  const filteredExams = exams.filter(exam =>
     exam.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -82,11 +82,11 @@ const Dashboard = () => {
 
   return (
     <div className="fade-in">
-      <div className="mobile-stack" style={{ 
-        marginBottom: '40px', 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <div className="mobile-stack" style={{
+        marginBottom: '40px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         gap: '20px',
         padding: '10px 0'
       }}>
@@ -97,9 +97,9 @@ const Dashboard = () => {
 
         <div style={{ position: 'relative', width: '100%', maxWidth: '350px' }}>
           <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: theme.colors.textLight }} size={20} />
-          <input 
+          <input
             type="text"
-            placeholder="Rechercher une epreuve..."
+            placeholder="Rechercher une épreuve..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -117,23 +117,23 @@ const Dashboard = () => {
       </div>
 
       {filteredExams.length === 0 ? (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '80px 20px', 
-          background: theme.colors.surface, 
+        <div style={{
+          textAlign: 'center',
+          padding: '80px 20px',
+          background: theme.colors.surface,
           borderRadius: theme.borderRadius.large,
           border: `2px dashed ${theme.colors.border}`,
           color: theme.colors.textLight
         }}>
           <p style={{ fontSize: '1.1rem', fontWeight: '500' }}>
-            {searchTerm ? `Aucun resultat pour "${searchTerm}"` : "Aucun examen n'est prevu pour le moment."}
+            {searchTerm ? `Aucun résultat pour "${searchTerm}"` : "Aucun examen n'est prévu pour le moment."}
           </p>
         </div>
       ) : (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
-          gap: '30px' 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          gap: '30px'
         }}>
           {filteredExams.map(exam => (
             <ExamCard key={exam._id} exam={exam} onStart={(id) => navigate(`/exam/${id}`)} />

@@ -7,14 +7,30 @@ export const socket = io(SOCKET_URL, {
   autoConnect: true
 });
 
+export const joinAdminRoom = () => {
+  socket.emit('join_admin');
+};
+
 export const subscribeToExams = (cb) => {
-  socket.on('new_exam', (exam) => cb(exam));
+  socket.on('examCreated', (exam) => cb(exam));
 };
 
 export const subscribeToSubmissions = (cb) => {
-  socket.on('new_submission', (submission) => cb(submission));
+  socket.on('newSubmission', (submission) => cb(submission));
 };
 
 export const subscribeToDeletedExams = (cb) => {
-  socket.on('exam_deleted', (examId) => cb(examId));
+  socket.on('examDeleted', (examId) => cb(examId));
+};
+
+export const subscribeToUserRegistered = (cb) => {
+  socket.on('userRegistered', (user) => cb(user));
+};
+
+// Utilitaire pour nettoyer les écoutes et éviter les fuites de mémoire
+export const unsubscribeAll = () => {
+  socket.off('examCreated');
+  socket.off('newSubmission');
+  socket.off('examDeleted');
+  socket.off('userRegistered');
 };
