@@ -1,3 +1,10 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Plus, Trash2, Save, Calendar, Clock, Sparkles, Wand2, Loader2 } from 'lucide-react';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import { fr } from 'date-fns/locale/fr';
+import api from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 
 registerLocale('fr', fr);

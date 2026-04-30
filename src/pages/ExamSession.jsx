@@ -5,6 +5,7 @@ import { Clock, AlertTriangle, ChevronRight, ChevronLeft, Send, Loader2, DoorOpe
 import api from '../services/api';
 import { theme } from '../theme';
 import { useNotification } from '../context/NotificationContext';
+import ConfirmModal from '../components/ConfirmModal';
 
 const ExamSession = () => {
   const { id } = useParams();
