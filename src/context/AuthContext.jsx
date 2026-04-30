@@ -5,6 +5,8 @@ import api from '../services/api';
 
 const AuthContext = createContext();
 
+export const useAuth = () => useContext(AuthContext);
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,16 +36,18 @@ export const AuthProvider = ({ children }) => {
 
   // Écoute temps réel du changement de rôle
   useEffect(() => {
-    socket.on('role_updated', (data) => {
+    const handleRoleUpdate = (data) => {
       if (data.userId === user?._id) {
         const updatedUser = { ...user, role: data.newRole };
         setUser(updatedUser);
         localStorage.setItem('userData', JSON.stringify(updatedUser));
-        setRoleUpdateNotification(`Vos droits ont été mis à jour : vous êtes désormais ${data.newRole.toUpperCase()}`);
+        // On pourrait ajouter une notification ici si on avait accès au context, 
+        // mais AuthProvider est à l'intérieur de NotificationProvider dans App.jsx, donc on peut !
       }
-    });
+    };
 
-    return () => socket.off('role_updated');
+    socket.on('role_updated', handleRoleUpdate);
+    return () => socket.off('role_updated', handleRoleUpdate);
   }, [user]);
 
   const login = (userData, accessToken) => {
@@ -65,5 +69,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

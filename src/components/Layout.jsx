@@ -3,7 +3,7 @@ import { useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNotification } from '../context/NotificationContext';
-import { useGlobalSocket } from '../services/socket';
+import { useGlobalSocket } from '../hooks/useGlobalSocket';
 import { LogOut, LayoutDashboard, Sun, Moon } from 'lucide-react';
 
 const Layout = () => {
@@ -11,11 +11,15 @@ const Layout = () => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { addNotification } = useNotification();
+  const { notification, clearNotification } = useGlobalSocket();
 
   // Socket notifications
-  useGlobalSocket((msg) => {
-    addNotification(msg, 'success');
-  });
+  React.useEffect(() => {
+    if (notification) {
+      addNotification(notification, 'success');
+      clearNotification();
+    }
+  }, [notification, addNotification, clearNotification]);
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--background)' }}>
