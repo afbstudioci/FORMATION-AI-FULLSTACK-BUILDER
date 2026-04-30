@@ -132,7 +132,7 @@ const SubmissionReview = ({ submission, onClose }) => {
 
         {/* Modal Content */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px', background: 'var(--background)' }}>
-          <div ref={printRef} style={{ background: 'white', margin: '0 auto', padding: '15px', width: '100%', maxWidth: '800px', borderRadius: '12px', boxShadow: 'var(--shadow-soft)' }}>
+          <div ref={printRef} style={{ background: 'white', color: '#000', margin: '0 auto', padding: '15px', width: '100%', maxWidth: '800px', borderRadius: '12px', boxShadow: 'var(--shadow-soft)' }}>
             
             {/* Header Block */}
             <div data-pdf-block="true" style={{ padding: '50px 40px', border: '6px solid #000', marginBottom: '20px', textAlign: 'center', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

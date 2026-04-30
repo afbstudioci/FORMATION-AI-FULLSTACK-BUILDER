@@ -195,14 +195,14 @@ const Profile = () => {
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {isStudent ? (
                 <>
-                  <Badge label="Pionnier" icon={<TrendingUp size={16} />} color="#0984e3" active={true} />
-                  <Badge label="Expert" icon={<Zap size={16} />} color="#fdcb6e" active={profileData.stats.totalExams > 2} />
-                  <Badge label="Élite" icon={<Target size={16} />} color="#00b894" active={profileData.stats.averageScore > 80} />
+                  <Badge label="Pionnier" icon={<TrendingUp size={16} />} color="var(--primary)" active={true} />
+                  <Badge label="Expert" icon={<Zap size={16} />} color="var(--warning)" active={profileData.stats.totalExams > 2} />
+                  <Badge label="Élite" icon={<Target size={16} />} color="var(--success)" active={profileData.stats.averageScore > 80} />
                 </>
               ) : (
                 <>
-                  <Badge label="Administrateur" icon={<Shield size={16} />} color="#d63031" active={true} />
-                  <Badge label="Modérateur AI" icon={<Settings size={16} />} color="#2d3436" active={true} />
+                  <Badge label="Administrateur" icon={<Shield size={16} />} color="var(--error)" active={true} />
+                  <Badge label="Modérateur AI" icon={<Settings size={16} />} color="var(--text)" active={true} />
                 </>
               )}
             </div>
@@ -261,14 +261,16 @@ const Profile = () => {
 const Badge = ({ label, icon, color, active }) => (
   <div style={{ 
     display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderRadius: '14px',
-    background: active ? `${color}15` : 'var(--background)',
+    background: active ? (color.startsWith('var') ? `rgba(var(--primary-rgb, 9, 132, 227), 0.1)` : `${color}15`) : 'var(--background)',
     color: active ? color : 'var(--text-light)',
-    border: `1px solid ${active ? `${color}30` : 'var(--border)'}`,
+    border: `1px solid ${active ? (color.startsWith('var') ? color : `${color}30`) : 'var(--border)'}`,
     transition: 'all 0.3s ease',
     opacity: active ? 1 : 0.6
   }}>
     {icon} <span style={{ fontWeight: '800', fontSize: '0.8rem' }}>{label}</span>
   </div>
 );
+
+// Note: Improved background logic for var() colors
 
 export default Profile;

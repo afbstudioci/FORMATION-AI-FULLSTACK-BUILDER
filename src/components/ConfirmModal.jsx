@@ -25,25 +25,26 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
           style={{
             position: 'relative',
-            background: 'white',
+            background: 'var(--background)',
             width: '100%',
             maxWidth: '450px',
             borderRadius: '24px',
             padding: '40px',
-            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
-            textAlign: 'center'
+            boxShadow: 'var(--shadow-premium)',
+            textAlign: 'center',
+            border: '1px solid var(--border)'
           }}
         >
           <div style={{ 
             width: '80px', 
             height: '80px', 
             borderRadius: '50%', 
-            background: isDanger ? '#fff5f5' : '#f0f7ff', 
+            background: isDanger ? 'rgba(214, 48, 49, 0.1)' : 'rgba(9, 132, 227, 0.1)', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
             margin: '0 auto 24px',
-            color: isDanger ? theme.colors.error : theme.colors.primary
+            color: isDanger ? 'var(--error)' : 'var(--primary)'
           }}>
             <AlertTriangle size={40} />
           </div>
@@ -58,8 +59,8 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText
                 flex: 1,
                 padding: '14px',
                 borderRadius: '12px',
-                border: `1px solid ${theme.colors.border}`,
-                background: 'white',
+                border: `1px solid var(--border)`,
+                background: 'var(--surface)',
                 fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.2s'
