@@ -135,18 +135,37 @@ const SubmissionReview = ({ submission, onClose }) => {
           <div ref={printRef} style={{ background: 'white', margin: '0 auto', padding: '15px', width: '100%', maxWidth: '800px', borderRadius: '12px', boxShadow: 'var(--shadow-soft)' }}>
             
             {/* Header Block */}
-            <div data-pdf-block="true" style={{ padding: '40px', border: '5px solid #000', marginBottom: '20px', textAlign: 'center', position: 'relative' }}>
-              <img src="/logo.png" alt="LOGO" style={{ position: 'absolute', top: '20px', right: '20px', height: '60px', width: 'auto' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
-                <div style={{ textAlign: 'left' }}>
-                  <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: '950', color: '#000', letterSpacing: '-1px' }}>AFB STUDIO</h1>
-                  <div style={{ height: '4px', width: '60px', background: '#000', marginTop: '5px' }}></div>
+            <div data-pdf-block="true" style={{ padding: '50px 40px', border: '6px solid #000', marginBottom: '20px', textAlign: 'center', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              {/* Logo Top Left */}
+              <img 
+                src={window.location.origin + "/logo.png"} 
+                crossOrigin="anonymous" 
+                alt="LOGO" 
+                style={{ position: 'absolute', top: '25px', left: '25px', height: '70px', width: 'auto' }} 
+              />
+              
+              {/* NOTE Top Right */}
+              <div style={{ position: 'absolute', top: '25px', right: '25px' }}>
+                <div style={{ background: '#000', color: '#fff', padding: '12px 25px', fontWeight: '1000', fontSize: '1.4rem', borderRadius: '4px' }}>
+                  NOTE : {calculatedScore} / {totalPossible}
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ background: '#000', color: '#fff', padding: '12px 30px', fontWeight: '950', fontSize: '1.5rem', display: 'inline-block', borderRadius: '4px' }}>
-                    NOTE : {calculatedScore} / {totalPossible}
-                  </div>
-                </div>
+              </div>
+
+              {/* Center Title */}
+              <div style={{ marginTop: '20px', marginBottom: '30px' }}>
+                <h1 style={{ 
+                  margin: 0, 
+                  fontSize: '2.5rem', 
+                  fontWeight: '1000', 
+                  color: '#000', 
+                  letterSpacing: '-1.5px',
+                  display: 'inline-block',
+                  borderBottom: '8px solid #000',
+                  paddingBottom: '8px',
+                  lineHeight: '1'
+                }}>
+                  AFB STUDIO
+                </h1>
               </div>
               <div style={{ borderTop: '2px solid #000', paddingTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', textAlign: 'left' }}>
                 <div>
@@ -215,7 +234,12 @@ const SubmissionReview = ({ submission, onClose }) => {
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
-                  <img src="/logo.png" alt="WATERMARK" style={{ position: 'absolute', width: '80%', opacity: 0.15, filter: 'grayscale(1)' }} />
+                  <img 
+                    src={window.location.origin + "/logo.png"} 
+                    crossOrigin="anonymous" 
+                    alt="WATERMARK" 
+                    style={{ position: 'absolute', width: '80%', opacity: 0.15, filter: 'grayscale(1)' }} 
+                  />
                   <span style={{ fontSize: '0.7rem', fontWeight: '1000', color: '#000', zIndex: 1, letterSpacing: '1px' }}>CERTIFIÉ CONFORME</span>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '1000', color: '#000' }}>AFB STUDIO CI</p>
