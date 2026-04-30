@@ -57,7 +57,16 @@ const SubmissionReview = ({ submission, onClose }) => {
         currentY += imgHeight + 5;
       }
       
-      pdf.save(`CERTIFICAT_AFB_${submission.user.matricule}.pdf`);
+      // Ajouter la numérotation des pages
+      const totalPages = pdf.internal.getNumberOfPages();
+      for (let j = 1; j <= totalPages; j++) {
+        pdf.setPage(j);
+        pdf.setFontSize(10);
+        pdf.setTextColor(150);
+        pdf.text(`Page ${j} / ${totalPages}`, pdfWidth - 25, pdfHeight - 10);
+      }
+      
+      pdf.save(`RAPPORT_ACADEMIQUE_AFB_${submission.user.matricule}.pdf`);
       addNotification("Rapport téléchargé !", 'success');
     } catch (err) {
       addNotification("Erreur lors de la génération PDF", 'error');
@@ -78,7 +87,17 @@ const SubmissionReview = ({ submission, onClose }) => {
 
   const pointsPerQ = Number(submission.pointsPerQuestion || submission.exam?.pointsPerQuestion || 1);
   const totalPossible = (submission.exam?.questions?.length || 0) * pointsPerQ;
-  const isAdmis = submission.score >= (totalPossible / 2);
+  
+  // Recalcul du score avec pénalités
+  const calculatedScore = submission.answers.reduce((acc, ans) => {
+    const q = submission.exam.questions.find(quest => (quest._id || quest.id) === ans.questionId);
+    if (!q) return acc;
+    if (ans.selectedOption === q.correctAnswer) return acc + pointsPerQ;
+    if (!ans.selectedOption) return acc; // Vide = 0
+    return acc - pointsPerQ; // Erreur = Pénalité
+  }, 0);
+
+  const isAdmis = calculatedScore >= (totalPossible / 2);
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(10px)' }}>
@@ -116,15 +135,16 @@ const SubmissionReview = ({ submission, onClose }) => {
           <div ref={printRef} style={{ background: 'white', margin: '0 auto', padding: '15px', width: '100%', maxWidth: '800px', borderRadius: '12px', boxShadow: 'var(--shadow-soft)' }}>
             
             {/* Header Block */}
-            <div data-pdf-block="true" style={{ padding: '30px', border: '4px solid #000', marginBottom: '20px', textAlign: 'center' }}>
+            <div data-pdf-block="true" style={{ padding: '40px', border: '5px solid #000', marginBottom: '20px', textAlign: 'center', position: 'relative' }}>
+              <img src="/logo.png" alt="LOGO" style={{ position: 'absolute', top: '20px', right: '20px', height: '60px', width: 'auto' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
                 <div style={{ textAlign: 'left' }}>
-                  <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900', color: '#000' }}>AFB STUDIO</h1>
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#666', fontWeight: '700' }}>EXCELLENCE & TECHNOLOGIE</p>
+                  <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: '950', color: '#000', letterSpacing: '-1px' }}>AFB STUDIO</h1>
+                  <div style={{ height: '4px', width: '60px', background: '#000', marginTop: '5px' }}></div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ background: '#000', color: '#fff', padding: '8px 20px', fontWeight: '900', fontSize: '1.2rem', display: 'inline-block' }}>
-                    NOTE : {submission.score} / {totalPossible}
+                  <div style={{ background: '#000', color: '#fff', padding: '12px 30px', fontWeight: '950', fontSize: '1.5rem', display: 'inline-block', borderRadius: '4px' }}>
+                    NOTE : {calculatedScore} / {totalPossible}
                   </div>
                 </div>
               </div>
@@ -141,15 +161,9 @@ const SubmissionReview = ({ submission, onClose }) => {
             </div>
 
             {/* Verdict Block */}
-            <div data-pdf-block="true" style={{ padding: '20px', border: '3px solid #000', marginBottom: '20px', background: isAdmis ? '#f6ffed' : '#fff1f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-              <div>
-                <p style={{ margin: 0, fontWeight: '800', fontSize: '0.9rem' }}>VERDICT FINAL :</p>
-                <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: '950', color: isAdmis ? '#52c41a' : '#ff4d4f' }}>{isAdmis ? 'ADMIS' : 'REFUSÉ'}</h2>
-              </div>
-              <div style={{ padding: '10px 20px', border: '2px solid #000', fontWeight: '900', textAlign: 'center' }}>
-                <p style={{ margin: 0, fontSize: '0.7rem' }}>AUTHENTIFIÉ PAR</p>
-                <p style={{ margin: 0, fontSize: '0.9rem' }}>AI ENGINE</p>
-              </div>
+            <div data-pdf-block="true" style={{ padding: '30px', border: '5px solid #000', marginBottom: '20px', background: isAdmis ? '#f6ffed' : '#fff1f0', textAlign: 'center' }}>
+              <p style={{ margin: '0 0 10px 0', fontWeight: '950', fontSize: '1.1rem', letterSpacing: '2px', color: '#000' }}>VERDICT FINAL</p>
+              <h2 style={{ margin: 0, fontSize: '4.5rem', fontWeight: '1000', color: isAdmis ? '#52c41a' : '#ff4d4f', letterSpacing: '-2px', lineHeight: '1' }}>{isAdmis ? 'ADMIS' : 'REFUSÉ'}</h2>
             </div>
 
             {/* Questions Blocks */}
@@ -163,7 +177,7 @@ const SubmissionReview = ({ submission, onClose }) => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', fontWeight: '800', fontSize: '0.8rem' }}>
                     <span>QUESTION {idx + 1}</span>
                     <span style={{ color: studentChoice ? (isCorrect ? '#52c41a' : '#ff4d4f') : '#888' }}>
-                      {studentChoice ? (isCorrect ? `CORRECT (+${pointsPerQ})` : `ERREUR (0)`) : 'NON RÉPONDU'}
+                      {studentChoice ? (isCorrect ? `CORRECT (+${pointsPerQ})` : `ERREUR (-${pointsPerQ})`) : 'NON RÉPONDU (0)'}
                     </span>
                   </div>
                   <p style={{ margin: '0 0 20px 0', fontWeight: '900', fontSize: '1rem', lineHeight: '1.4' }}>{q.text}</p>
@@ -182,18 +196,29 @@ const SubmissionReview = ({ submission, onClose }) => {
             })}
 
             {/* Footer Block */}
-            <div data-pdf-block="true" style={{ marginTop: '30px', borderTop: '4px solid #000', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
+            <div data-pdf-block="true" style={{ marginTop: '30px', borderTop: '4px solid #000', paddingTop: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
               <div style={{ flex: 1 }}>
-                <h4 style={{ margin: '0 0 10px 0', fontWeight: '900' }}>CERTIFICATION OFFICIELLE</h4>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: '#444', fontStyle: 'italic', maxWidth: '300px' }}>
-                  Ce rapport est généré automatiquement par AFB STUDIO. Toute modification non autorisée est passible de poursuites.
+                <h4 style={{ margin: '0 0 10px 0', fontWeight: '950', color: '#000' }}>CERTIFICATION OFFICIELLE</h4>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#444', fontStyle: 'italic', maxWidth: '350px', lineHeight: '1.5' }}>
+                  Ce rapport académique est généré et certifié par AFB STUDIO. Toute modification ou falsification est passible de poursuites judiciaires.
                 </p>
               </div>
-              <div style={{ textAlign: 'center', minWidth: '150px' }}>
-                <div style={{ border: '2px solid #000', height: '60px', marginBottom: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: '900' }}>
-                  CACHET NUMÉRIQUE
+              <div style={{ textAlign: 'center', minWidth: '180px', position: 'relative' }}>
+                <div style={{ 
+                  border: '3px solid #000', 
+                  height: '100px', 
+                  width: '180px',
+                  marginBottom: '5px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <img src="/logo.png" alt="WATERMARK" style={{ position: 'absolute', width: '80%', opacity: 0.15, filter: 'grayscale(1)' }} />
+                  <span style={{ fontSize: '0.7rem', fontWeight: '1000', color: '#000', zIndex: 1, letterSpacing: '1px' }}>CERTIFIÉ CONFORME</span>
                 </div>
-                <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: '900' }}>AFB STUDIO CI</p>
+                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '1000', color: '#000' }}>AFB STUDIO CI</p>
               </div>
             </div>
           </div>
