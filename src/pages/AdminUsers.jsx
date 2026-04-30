@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Loader2, ArrowLeft, User, ShieldCheck, ShieldAlert, UserPlus, UserMinus } from 'lucide-react';
 import api from '../services/api';
 import { theme } from '../theme';
+import ConfirmModal from '../components/ConfirmModal';
 import { useNotification } from '../context/NotificationContext';
 
 const AdminUsers = () => {

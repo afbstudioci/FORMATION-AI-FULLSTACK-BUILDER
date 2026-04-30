@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Download, CheckCircle2, XCircle, Clock, User, Hash, FileText, Calendar, Award, ShieldCheck, Mail, Phone } from 'lucide-react';
+import { X, Download, CheckCircle2, XCircle, Clock, User, Hash, FileText, Calendar, Award, ShieldCheck, Mail, Phone, Loader2 } from 'lucide-react';
 import { theme } from '../theme';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
