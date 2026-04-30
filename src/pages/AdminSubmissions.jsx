@@ -5,6 +5,7 @@ import api from '../services/api';
 import SubmissionReview from '../components/SubmissionReview';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNotification } from '../context/NotificationContext';
+import FloatingScrollToTop from '../components/FloatingScrollToTop';
 
 const AdminSubmissions = () => {
   const [submissions, setSubmissions] = useState([]);
@@ -23,7 +24,7 @@ const AdminSubmissions = () => {
       const filtered = examId 
         ? data.filter(s => s.exam?._id === examId)
         : data;
-      setSubmissions(filtered);
+      setSubmissions(filtered.reverse());
     } catch (err) {
       addNotification("Impossible de charger les copies", 'error');
     } finally {
@@ -214,6 +215,7 @@ const AdminSubmissions = () => {
         onConfirm={handleActualDelete}
         onCancel={() => setConfirmDelete({ open: false, id: null })}
       />
+      <FloatingScrollToTop />
     </div>
   );
 };

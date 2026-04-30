@@ -5,6 +5,7 @@ import api from '../services/api';
 import { theme } from '../theme';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNotification } from '../context/NotificationContext';
+import FloatingScrollToTop from '../components/FloatingScrollToTop';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -17,7 +18,7 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     try {
       const { data } = await api.get('/admin/users');
-      setUsers(data);
+      setUsers(data.reverse());
     } catch (err) {
       addNotification("Impossible de charger les utilisateurs", 'error');
     } finally {
@@ -184,6 +185,7 @@ const AdminUsers = () => {
         onConfirm={handleActualToggle}
         onCancel={() => setConfirmRole({ open: false, user: null })}
       />
+      <FloatingScrollToTop />
     </div>
   );
 };

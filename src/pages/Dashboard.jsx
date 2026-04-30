@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import ExamCard from '../components/ExamCard';
 import { Search, Loader2 } from 'lucide-react';
+import FloatingScrollToTop from '../components/FloatingScrollToTop';
 import { subscribeToExams, subscribeToDeletedExams, subscribeToSubmissionUpdates } from '../services/socket';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
@@ -21,7 +22,7 @@ const Dashboard = () => {
     const fetchExams = async () => {
       try {
         const { data } = await api.get('/exams');
-        setExams(data);
+        setExams(data.reverse());
       } catch (err) {
         addNotification("Erreur lors du chargement des examens", 'error');
       } finally {
@@ -134,6 +135,7 @@ const Dashboard = () => {
           ))}
         </div>
       )}
+      <FloatingScrollToTop />
     </div>
   );
 };

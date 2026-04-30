@@ -8,6 +8,7 @@ import CreateExamModal from '../components/CreateExamModal';
 import ConfirmModal from '../components/ConfirmModal';
 import Alert from '../components/Alert';
 import { subscribeToSubmissions, subscribeToExams, subscribeToDeletedExams, subscribeToUserRegistered } from '../services/socket';
+import FloatingScrollToTop from '../components/FloatingScrollToTop';
 
 import { useNotification } from '../context/NotificationContext';
 
@@ -27,7 +28,7 @@ const AdminDashboard = () => {
         api.get('/exams')
       ]);
       setStats(statsRes.data);
-      setExams(examsRes.data);
+      setExams(examsRes.data.reverse());
     } catch (err) {
       addNotification("Erreur de synchronisation des données", 'error');
     } finally {
@@ -173,6 +174,7 @@ const AdminDashboard = () => {
         onConfirm={handleActualDelete}
         onCancel={() => setConfirmDelete({ open: false, id: null })}
       />
+      <FloatingScrollToTop />
     </div>
   );
 };
