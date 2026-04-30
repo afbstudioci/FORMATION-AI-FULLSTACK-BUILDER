@@ -1,6 +1,10 @@
+import React from 'react';
+import { useNavigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNotification } from '../context/NotificationContext';
-import { LogOut, LayoutDashboard, Sun, Moon, Bell } from 'lucide-react';
+import { useGlobalSocket } from '../services/socket';
+import { LogOut, LayoutDashboard, Sun, Moon } from 'lucide-react';
 
 const Layout = () => {
   const { user, logout } = useAuth();

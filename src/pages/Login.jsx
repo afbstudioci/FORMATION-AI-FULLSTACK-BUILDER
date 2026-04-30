@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogIn, Lock, Hash, Eye, EyeOff, ShieldCheck, Key } from 'lucide-react';
+import { LogIn, Lock, Hash, Eye, EyeOff, ShieldCheck, Key, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ matricule: '', password: '' });
+  const location = useLocation();
+  const [formData, setFormData] = useState({ 
+    matricule: location.state?.matricule || '', 
+    password: '' 
+  });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [enigmeState, setEnigmeState] = useState(0); // 0: init, 1: step1_ok, 2: admin_form
@@ -16,6 +20,13 @@ const Login = () => {
   
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Pré-remplir si le state change (cas où on arrive de Register)
+  useEffect(() => {
+    if (location.state?.matricule) {
+      setFormData(prev => ({ ...prev, matricule: location.state.matricule }));
+    }
+  }, [location.state]);
   
   // Logique cryptique pour le Step 2 (10 secondes sur le cadenas)
   const _resonance = useRef(null);

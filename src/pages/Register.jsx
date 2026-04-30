@@ -20,7 +20,14 @@ const Register = () => {
     try {
       const { data } = await api.post('/auth/register', formData);
       setMatriculeGenere(data.matricule);
-      addNotification('Compte créé avec succès !', 'success');
+      
+      // Auto-copy to clipboard
+      try {
+        await navigator.clipboard.writeText(data.matricule);
+        addNotification('Compte créé et matricule copié !', 'success');
+      } catch (err) {
+        addNotification('Compte créé avec succès !', 'success');
+      }
     } catch (err) {
       addNotification(err.response?.data?.message || "Erreur lors de l'inscription", 'error');
     } finally {
@@ -218,7 +225,7 @@ const Register = () => {
               {matriculeGenere}
             </div>
             <button 
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/login', { state: { matricule: matriculeGenere } })}
               style={{
                 width: '100%',
                 padding: '16px',

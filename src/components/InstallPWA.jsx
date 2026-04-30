@@ -8,24 +8,28 @@ const InstallPWA = () => {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    // Detecter iOS
+    // Détecter iOS
     const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     setIsIOS(ios);
 
-    // Ecouter l'evenement d'installation pour Android/Windows
-    window.addEventListener('beforeinstallprompt', (e) => {
+    const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowPrompt(true);
-    });
-
-    // Pour iOS, on affiche le prompt apres un petit delai si non installe
-    if (ios && !window.navigator.standalone) {
-      const hasSeenPrompt = localStorage.getItem('pwaPromptSeen');
-      if (!hasSeenPrompt) {
-        setTimeout(() => setShowPrompt(true), 3000);
+      // Ne pas montrer si déjà vu dans cette session ou si déjà installé
+      if (!localStorage.getItem('pwaPromptSeen')) {
+        setShowPrompt(true);
       }
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Pour iOS, on affiche le prompt si non installe
+    if (ios && !window.navigator.standalone && !localStorage.getItem('pwaPromptSeen')) {
+      const timer = setTimeout(() => setShowPrompt(true), 4000);
+      return () => clearTimeout(timer);
     }
+
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
   }, []);
 
   const handleInstallClick = async () => {
@@ -34,6 +38,7 @@ const InstallPWA = () => {
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
       setShowPrompt(false);
+      localStorage.setItem('pwaPromptSeen', 'true');
     }
     setDeferredPrompt(null);
   };
@@ -48,59 +53,72 @@ const InstallPWA = () => {
   return (
     <div style={{
       position: 'fixed',
-      bottom: '20px',
+      bottom: '25px',
       left: '50%',
       transform: 'translateX(-50%)',
-      zIndex: 999,
-      width: '90%',
-      maxWidth: '400px',
-      background: 'white',
-      padding: '20px',
-      borderRadius: '20px',
-      boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-      border: `1px solid ${theme.colors.border}`,
+      zIndex: 9999,
+      width: 'calc(100% - 40px)',
+      maxWidth: '420px',
+      background: 'var(--surface)',
+      padding: '24px',
+      borderRadius: '28px',
+      boxShadow: 'var(--shadow-premium)',
+      border: '1px solid var(--border)',
       display: 'flex',
       flexDirection: 'column',
-      gap: '15px',
-      animation: 'slideUp 0.5s ease-out'
+      gap: '20px',
+      animation: 'pwaSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+      backdropFilter: 'blur(15px)'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-          <div style={{ background: theme.colors.primary, padding: '10px', borderRadius: '12px' }}>
-            <Download color="white" size={24} />
+        <div style={{ display: 'flex', gap: '18px', alignItems: 'center' }}>
+          <div style={{ 
+            background: 'var(--primary)', 
+            width: '52px', 
+            height: '52px', 
+            borderRadius: '16px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            boxShadow: '0 8px 16px var(--primary-light)'
+          }}>
+            <Download color="white" size={26} />
           </div>
           <div>
-            <h4 style={{ fontWeight: '800', margin: 0 }}>Installer AFB EXAM</h4>
-            <p style={{ fontSize: '0.85rem', color: theme.colors.textLight, margin: '2px 0 0' }}>Accédez plus vite à vos examens !</p>
+            <h4 style={{ fontWeight: '950', margin: 0, color: 'var(--text)', fontSize: '1.1rem', letterSpacing: '-0.5px' }}>AFB EXAM PRO</h4>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', margin: '4px 0 0', fontWeight: '700' }}>Installation instantanée</p>
           </div>
         </div>
-        <button onClick={closePrompt} style={{ background: 'none', border: 'none', color: theme.colors.textLight }}><X size={20} /></button>
+        <button onClick={closePrompt} style={{ background: 'var(--background)', border: 'none', color: 'var(--text-light)', padding: '8px', borderRadius: '50%', cursor: 'pointer', display: 'flex' }}><X size={18} /></button>
       </div>
 
       {isIOS ? (
-        <div style={{ fontSize: '0.9rem', color: theme.colors.text, background: '#f8f9fa', padding: '12px', borderRadius: '10px', lineHeight: '1.4' }}>
-          Appuyez sur <Share size={16} style={{ verticalAlign: 'middle', display: 'inline' }} /> puis sur <strong>"Sur l'écran d'accueil"</strong> pour installer l'application.
+        <div style={{ fontSize: '0.85rem', color: 'var(--text)', background: 'var(--background)', padding: '15px', borderRadius: '16px', lineHeight: '1.5', border: '1px solid var(--border)', fontWeight: '600' }}>
+          Pour installer : appuyez sur <Share size={18} style={{ verticalAlign: 'middle', margin: '0 4px', color: 'var(--primary)' }} /> puis <strong style={{ color: 'var(--primary)' }}>"Sur l'écran d'accueil"</strong>.
         </div>
       ) : (
         <button 
           onClick={handleInstallClick}
           style={{ 
-            background: theme.colors.primary, 
+            background: 'var(--primary)', 
             color: 'white', 
-            padding: '12px', 
-            borderRadius: '12px', 
-            fontWeight: '700', 
+            padding: '16px', 
+            borderRadius: '18px', 
+            fontWeight: '900', 
             border: 'none',
-            boxShadow: `0 8px 15px ${theme.colors.primary}30`
+            fontSize: '0.95rem',
+            cursor: 'pointer',
+            boxShadow: 'var(--shadow-premium)',
+            transition: 'transform 0.2s active'
           }}
         >
-          Installer l'App
+          Installer maintenant
         </button>
       )}
 
       <style>{`
-        @keyframes slideUp {
-          from { transform: translate(-50%, 100px); opacity: 0; }
+        @keyframes pwaSlideUp {
+          from { transform: translate(-50%, 120%); opacity: 0; }
           to { transform: translate(-50%, 0); opacity: 1; }
         }
       `}</style>
