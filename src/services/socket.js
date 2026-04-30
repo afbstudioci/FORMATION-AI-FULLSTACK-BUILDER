@@ -16,7 +16,13 @@ export const subscribeToExams = (cb) => {
 };
 
 export const subscribeToSubmissions = (cb) => {
-  socket.on('newSubmission', (submission) => cb(submission));
+  if (!socket) return;
+  socket.on('newSubmission', cb);
+};
+
+export const subscribeToSubmissionUpdates = (cb) => {
+  if (!socket) return;
+  socket.on('submissionUpdate', cb);
 };
 
 export const subscribeToDeletedExams = (cb) => {

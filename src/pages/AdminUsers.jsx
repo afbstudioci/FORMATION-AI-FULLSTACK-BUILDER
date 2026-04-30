@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Loader2, ArrowLeft, User, ShieldCheck, ShieldAlert, UserPlus, UserMinus } from 'lucide-react';
 import api from '../services/api';
 import { theme } from '../theme';
-import Alert from '../components/Alert';
-import ConfirmModal from '../components/ConfirmModal';
+import { useNotification } from '../context/NotificationContext';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmRole, setConfirmRole] = useState({ open: false, user: null });
+  const { addNotification } = useNotification();
   const navigate = useNavigate();
 
   const fetchUsers = async () => {
@@ -19,7 +18,7 @@ const AdminUsers = () => {
       const { data } = await api.get('/admin/users');
       setUsers(data);
     } catch (err) {
-      setError("Impossible de charger les utilisateurs");
+      addNotification("Impossible de charger les utilisateurs", 'error');
     } finally {
       setLoading(false);
     }
@@ -38,9 +37,10 @@ const AdminUsers = () => {
     const newRole = user.role === 'admin' ? 'student' : 'admin';
     try {
       await api.patch(`/admin/users/${user._id}/role`, { role: newRole });
+      addNotification(`Rôle mis à jour pour ${user.fullname}`, 'success');
       fetchUsers();
     } catch (err) {
-      setError(err.response?.data?.message || "Erreur lors du changement de rôle");
+      addNotification(err.response?.data?.message || "Erreur lors du changement de rôle", 'error');
     } finally {
       setConfirmRole({ open: false, user: null });
     }
@@ -53,66 +53,64 @@ const AdminUsers = () => {
 
   if (loading) return (
     <div style={{ height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Loader2 className="animate-spin" size={48} color={theme.colors.primary} />
+      <Loader2 className="animate-spin" size={48} color="var(--primary)" />
     </div>
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-      <Alert message={error} onClose={() => setError('')} />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }} className="fade-in">
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <button onClick={() => navigate('/admin')} style={{ background: 'white', border: `1px solid ${theme.colors.border}`, padding: '10px', borderRadius: '50%', display: 'flex', cursor: 'pointer' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+        <button onClick={() => navigate('/admin')} style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '10px', borderRadius: '50%', display: 'flex', cursor: 'pointer', color: 'var(--text)' }}>
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h2 style={{ fontWeight: '900', color: theme.colors.text }}>Gestion des Utilisateurs</h2>
-          <p style={{ color: theme.colors.textLight, fontSize: '0.9rem' }}>Promouvoir ou retirer des administrateurs</p>
+          <h2 style={{ fontWeight: '900', color: 'var(--text)', fontSize: '1.5rem' }}>Utilisateurs</h2>
+          <p style={{ color: 'var(--text-light)', fontSize: '0.85rem' }}>Gérez les accès et privilèges</p>
         </div>
       </div>
 
       <div style={{ position: 'relative' }}>
-        <Search size={20} style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: theme.colors.textLight }} />
+        <Search size={20} style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
         <input 
           type="text" 
           placeholder="Rechercher par nom ou matricule..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '100%', padding: '15px 15px 15px 50px', borderRadius: '15px', border: `1px solid ${theme.colors.border}`, outline: 'none', fontSize: '1rem' }}
+          style={{ width: '100%', padding: '15px 15px 15px 50px', borderRadius: '15px', border: '1px solid var(--border)', outline: 'none', fontSize: '1rem', background: 'var(--surface)', color: 'var(--text)' }}
         />
       </div>
 
-      <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: theme.shadows.soft }}>
-        <div style={{ overflowX: 'auto' }}>
+      {window.innerWidth > 768 ? (
+        <div style={{ background: 'var(--surface)', borderRadius: '20px', overflow: 'hidden', boxShadow: 'var(--shadow-soft)', border: '1px solid var(--border)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ background: '#f8f9fa', borderBottom: `2px solid ${theme.colors.border}` }}>
-                <th style={{ padding: '20px', fontWeight: '800' }}>Utilisateur</th>
-                <th style={{ padding: '20px', fontWeight: '800' }}>Matricule</th>
-                <th style={{ padding: '20px', fontWeight: '800' }}>Rôle Actuel</th>
-                <th style={{ padding: '20px', fontWeight: '800' }}>Actions</th>
+              <tr style={{ background: 'var(--background)', borderBottom: '2px solid var(--border)' }}>
+                <th style={{ padding: '20px', fontWeight: '800', color: 'var(--text)' }}>Utilisateur</th>
+                <th style={{ padding: '20px', fontWeight: '800', color: 'var(--text)' }}>Matricule</th>
+                <th style={{ padding: '20px', fontWeight: '800', color: 'var(--text)' }}>Rôle</th>
+                <th style={{ padding: '20px', fontWeight: '800', color: 'var(--text)' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.map((user) => (
-                <tr key={user._id} style={{ borderBottom: `1px solid ${theme.colors.border}`, transition: 'all 0.2s' }}>
+                <tr key={user._id} style={{ borderBottom: '1px solid var(--border)', transition: 'all 0.2s' }}>
                   <td style={{ padding: '20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: user.role === 'admin' ? `${theme.colors.secondary}15` : `${theme.colors.primary}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <User size={20} color={user.role === 'admin' ? theme.colors.secondary : theme.colors.primary} />
-                      </div>
-                      <span style={{ fontWeight: '700' }}>{user.fullname}</span>
+                      <img 
+                        src={user.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullname)}&background=random&color=fff`} 
+                        alt={user.fullname}
+                        style={{ width: '40px', height: '40px', borderRadius: '12px', objectFit: 'cover' }}
+                      />
+                      <span style={{ fontWeight: '700', color: 'var(--text)' }}>{user.fullname}</span>
                     </div>
                   </td>
-                  <td style={{ padding: '20px', color: theme.colors.textLight }}>{user.matricule}</td>
+                  <td style={{ padding: '20px', color: 'var(--text-light)', fontWeight: '600' }}>{user.matricule}</td>
                   <td style={{ padding: '20px' }}>
                     <span style={{ 
-                      padding: '6px 12px', 
-                      borderRadius: '8px', 
-                      fontSize: '0.8rem', 
-                      fontWeight: '800',
-                      background: user.role === 'admin' ? `${theme.colors.secondary}20` : '#f1f2f6',
-                      color: user.role === 'admin' ? theme.colors.secondary : '#666',
+                      padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '900',
+                      background: user.role === 'admin' ? 'var(--secondary)' : 'var(--border)',
+                      color: user.role === 'admin' ? 'white' : 'var(--text-light)',
                       textTransform: 'uppercase'
                     }}>
                       {user.role}
@@ -122,24 +120,12 @@ const AdminUsers = () => {
                     <button 
                       onClick={() => handleRoleToggle(user)}
                       style={{ 
-                        background: user.role === 'admin' ? '#fff5f5' : `${theme.colors.secondary}10`, 
-                        color: user.role === 'admin' ? theme.colors.error : theme.colors.secondary, 
-                        padding: '10px 15px', 
-                        borderRadius: '10px', 
-                        border: 'none', 
-                        fontWeight: '800', 
-                        fontSize: '0.85rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
+                        background: user.role === 'admin' ? 'rgba(214, 48, 49, 0.1)' : 'rgba(108, 92, 231, 0.1)', 
+                        color: user.role === 'admin' ? 'var(--error)' : 'var(--secondary)', 
+                        padding: '10px 15px', borderRadius: '10px', border: 'none', fontWeight: '800', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
                       }}
                     >
-                      {user.role === 'admin' ? (
-                        <><UserMinus size={16} /> Retirer Admin</>
-                      ) : (
-                        <><UserPlus size={16} /> Promouvoir Admin</>
-                      )}
+                      {user.role === 'admin' ? <><UserMinus size={16} /> Retirer Admin</> : <><UserPlus size={16} /> Promouvoir Admin</>}
                     </button>
                   </td>
                 </tr>
@@ -147,24 +133,56 @@ const AdminUsers = () => {
             </tbody>
           </table>
         </div>
-        {filteredUsers.length === 0 && (
-          <div style={{ padding: '60px', textAlign: 'center', color: theme.colors.textLight }}>
-            Aucun utilisateur trouvé.
-          </div>
-        )}
-        <ConfirmModal 
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          {filteredUsers.map((user) => (
+            <div key={user._id} style={{ background: 'var(--surface)', padding: '20px', borderRadius: '20px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-soft)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
+                <img 
+                  src={user.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullname)}&background=random&color=fff`} 
+                  alt={user.fullname}
+                  style={{ width: '50px', height: '50px', borderRadius: '14px', objectFit: 'cover' }}
+                />
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontWeight: '800', color: 'var(--text)', margin: 0 }}>{user.fullname}</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', margin: 0 }}>{user.matricule}</p>
+                </div>
+                <span style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '900', background: user.role === 'admin' ? 'var(--secondary)' : 'var(--border)', color: user.role === 'admin' ? 'white' : 'var(--text-light)' }}>
+                  {user.role.toUpperCase()}
+                </span>
+              </div>
+              <button 
+                onClick={() => handleRoleToggle(user)}
+                style={{ 
+                  width: '100%', background: user.role === 'admin' ? 'rgba(214, 48, 49, 0.1)' : 'rgba(108, 92, 231, 0.1)', 
+                  color: user.role === 'admin' ? 'var(--error)' : 'var(--secondary)', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: '800', fontSize: '0.85rem'
+                }}
+              >
+                {user.role === 'admin' ? 'Retirer les droits Admin' : 'Promouvoir Administrateur'}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {filteredUsers.length === 0 && (
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-light)', fontWeight: '600' }}>
+          Aucun utilisateur trouvé.
+        </div>
+      )}
+
+      <ConfirmModal 
         isOpen={confirmRole.open}
-        title={confirmRole.user?.role === 'admin' ? "Rétrograder l'administrateur ?" : "Promouvoir l'utilisateur ?"}
+        title={confirmRole.user?.role === 'admin' ? "Rétrograder ?" : "Promouvoir ?"}
         message={confirmRole.user?.role === 'admin' 
-          ? `Êtes-vous sûr de vouloir retirer les droits d'administration à ${confirmRole.user?.fullname} ?` 
-          : `Êtes-vous sûr de vouloir donner les pleins pouvoirs d'administration à ${confirmRole.user?.fullname} ?`
+          ? `Voulez-vous retirer les droits d'administration à ${confirmRole.user?.fullname} ?` 
+          : `Voulez-vous donner les pleins pouvoirs d'administration à ${confirmRole.user?.fullname} ?`
         }
-        confirmText={confirmRole.user?.role === 'admin' ? "Confirmer la rétrogradation" : "Confirmer la promotion"}
+        confirmText="Confirmer"
         type={confirmRole.user?.role === 'admin' ? "danger" : "info"}
         onConfirm={handleActualToggle}
         onCancel={() => setConfirmRole({ open: false, user: null })}
       />
-    </div>
     </div>
   );
 };

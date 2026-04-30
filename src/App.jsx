@@ -12,12 +12,18 @@ import AdminSubmissions from './pages/AdminSubmissions';
 import AdminUsers from './pages/AdminUsers';
 import Profile from './pages/Profile';
 import InstallPWA from './components/InstallPWA';
+import ScrollToTop from './components/ScrollToTop';
+import { ThemeProvider } from './context/ThemeContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
+    <ThemeProvider>
+      <NotificationProvider>
+        <AuthProvider>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <ScrollToTop />
+            <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
@@ -43,9 +49,11 @@ function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
-      <InstallPWA />
-    </AuthProvider>
+          </BrowserRouter>
+          <InstallPWA />
+        </AuthProvider>
+      </NotificationProvider>
+    </ThemeProvider>
   );
 }
 

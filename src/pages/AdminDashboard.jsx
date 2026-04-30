@@ -9,13 +9,15 @@ import ConfirmModal from '../components/ConfirmModal';
 import Alert from '../components/Alert';
 import { subscribeToSubmissions, subscribeToExams, subscribeToDeletedExams, subscribeToUserRegistered } from '../services/socket';
 
+import { useNotification } from '../context/NotificationContext';
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ totalStudents: 0, totalExams: 0, totalSubmissions: 0 });
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
-  const [error, setError] = useState('');
+  const { addNotification } = useNotification();
   const navigate = useNavigate();
 
   const fetchData = async () => {
@@ -27,7 +29,7 @@ const AdminDashboard = () => {
       setStats(statsRes.data);
       setExams(examsRes.data);
     } catch (err) {
-      setError("Erreur lors de la récupération des données");
+      addNotification("Erreur de synchronisation des données", 'error');
     } finally {
       setLoading(false);
     }
@@ -36,26 +38,20 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchData();
 
-    // Écoute temps réel des nouvelles copies
     subscribeToSubmissions((newSub) => {
       setStats(prev => ({ ...prev, totalSubmissions: prev.totalSubmissions + 1 }));
+      addNotification(`Nouvelle copie : ${newSub.user.fullname}`, 'info');
     });
 
-    // Écoute temps réel des nouveaux étudiants inscrits
-    subscribeToUserRegistered((newUser) => {
+    subscribeToUserRegistered(() => {
       setStats(prev => ({ ...prev, totalStudents: prev.totalStudents + 1 }));
     });
 
-    // Écoute temps réel des nouveaux examens
     subscribeToExams((newExam) => {
       setStats(prev => ({ ...prev, totalExams: prev.totalExams + 1 }));
-      setExams(prev => {
-        if (prev.some(e => e._id === newExam._id)) return prev;
-        return [newExam, ...prev];
-      });
+      setExams(prev => [newExam, ...prev]);
     });
 
-    // Écoute temps réel des suppressions d'examens
     subscribeToDeletedExams((deletedId) => {
       setStats(prev => ({ ...prev, totalExams: Math.max(0, prev.totalExams - 1) }));
       setExams(prev => prev.filter(e => e._id !== deletedId));
@@ -69,9 +65,9 @@ const AdminDashboard = () => {
   const handleActualDelete = async () => {
     try {
       await api.delete(`/exams/${confirmDelete.id}`);
-      // L'appel API suffit, le websocket (subscribeToDeletedExams) actualise la liste automatiquement
+      addNotification("Épreuve supprimée", 'success');
     } catch (err) {
-      setError("Impossible de supprimer l'épreuve");
+      addNotification("Erreur de suppression", 'error');
     } finally {
       setConfirmDelete({ open: false, id: null });
     }
@@ -79,160 +75,101 @@ const AdminDashboard = () => {
 
   if (loading) return (
     <div style={{ height: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Loader2 className="animate-spin" size={48} color={theme.colors.primary} />
+      <Loader2 className="animate-spin" size={48} color="var(--primary)" />
     </div>
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
-      <Alert message={error} onClose={() => setError('')} />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }} className="fade-in">
 
-      {/* Header avec bouton d'action */}
-      <div className="mobile-stack" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
         <div>
-          <h2 style={{ fontWeight: '900', color: theme.colors.text, letterSpacing: '-1px' }}>Dashboard Admin</h2>
-          <p style={{ color: theme.colors.textLight, marginTop: '5px', fontSize: '0.9rem' }}>Gérez vos épreuves et suivez les performances</p>
+          <h2 style={{ fontWeight: '950', color: 'var(--text)', fontSize: '2rem', letterSpacing: '-1px', margin: 0 }}>Gestion</h2>
+          <p style={{ color: 'var(--text-light)', fontWeight: '700', fontSize: '0.9rem', margin: '5px 0 0 0' }}>Centre de contrôle AFB STUDIO</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
           style={{
-            background: theme.colors.primary,
-            color: 'white',
-            padding: '12px 24px',
-            borderRadius: theme.borderRadius.medium,
-            fontWeight: '700',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-            boxShadow: `0 10px 20px ${theme.colors.primary}30`,
-            width: window.innerWidth < 768 ? '100%' : 'auto'
+            background: 'var(--primary)', color: 'white', padding: '12px 25px', borderRadius: '16px', fontWeight: '900',
+            display: 'flex', alignItems: 'center', gap: '10px', border: 'none', cursor: 'pointer', boxShadow: 'var(--shadow-premium)', fontSize: '0.9rem'
           }}
         >
           <Plus size={20} /> Nouvelle Épreuve
         </button>
       </div>
 
-      {/* Cartes de statistiques */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px' }}>
+      {/* Stats Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
         {[
-          { label: 'Étudiants Inscrits', value: stats.totalStudents, icon: <Users />, color: theme.colors.primary },
-          { label: 'Épreuves Publiées', value: stats.totalExams, icon: <FileText />, color: theme.colors.secondary },
-          { label: 'Copies Rendues', value: stats.totalSubmissions, icon: <Download />, color: theme.colors.success }
+          { label: 'Étudiants', value: stats.totalStudents, icon: <Users />, color: 'var(--primary)', path: '/admin/users' },
+          { label: 'Épreuves', value: stats.totalExams, icon: <FileText />, color: 'var(--secondary)', path: null },
+          { label: 'Copies', value: stats.totalSubmissions, icon: <Download />, color: 'var(--success)', path: '/admin/submissions' }
         ].map((item, idx) => (
-          <div key={idx} style={{
-            background: theme.colors.surface,
-            padding: '30px',
-            borderRadius: theme.borderRadius.large,
-            boxShadow: theme.shadows.soft,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '20px',
-            border: `1px solid ${theme.colors.border}`,
-            cursor: idx === 0 ? 'pointer' : 'default'
-          }}
-            onClick={() => idx === 0 && navigate('/admin/users')}
-          >
-            <div style={{
-              background: `${item.color}15`,
-              padding: '15px',
-              borderRadius: '15px',
-              color: item.color
-            }}>
-              {React.cloneElement(item.icon, { size: 28 })}
+          <div key={idx} onClick={() => item.path && navigate(item.path)} style={{
+            background: 'var(--surface)', padding: '25px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-soft)',
+            display: 'flex', alignItems: 'center', gap: '20px', cursor: item.path ? 'pointer' : 'default', transition: 'transform 0.2s'
+          }}>
+            <div style={{ background: `${item.color}15`, padding: '15px', borderRadius: '15px', color: item.color }}>
+              {React.cloneElement(item.icon, { size: 24 })}
             </div>
             <div>
-              <div style={{ fontSize: '2rem', fontWeight: '900', color: theme.colors.text }}>{item.value}</div>
-              <div style={{ fontSize: '0.85rem', color: theme.colors.textLight, fontWeight: '700' }}>{item.label}</div>
-              {idx === 0 && (
-                <div style={{ fontSize: '0.75rem', color: theme.colors.primary, fontWeight: '800', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  Gérer les accès <ChevronRight size={14} />
-                </div>
-              )}
+              <div style={{ fontSize: '1.8rem', fontWeight: '950', color: 'var(--text)', lineHeight: 1 }}>{item.value}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', fontWeight: '800', marginTop: '5px' }}>{item.label}</div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Liste des Épreuves */}
-      <div style={{
-        background: theme.colors.surface,
-        borderRadius: theme.borderRadius.large,
-        boxShadow: theme.shadows.soft,
-        border: `1px solid ${theme.colors.border}`,
-        overflow: 'hidden'
-      }}>
-        <div style={{ padding: '25px', borderBottom: `1px solid ${theme.colors.border}`, background: '#fcfcfc' }}>
-          <h2 style={{ fontWeight: '800', fontSize: '1.2rem' }}>Épreuves en cours</h2>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {exams.length === 0 ? (
-            <div style={{ padding: '60px', textAlign: 'center', color: theme.colors.textLight }}>
-              Aucune épreuve créée pour le moment.
-            </div>
-          ) : (
-            exams.map((exam) => (
-              <div key={exam._id} className="mobile-stack" style={{
-                padding: '25px',
-                borderBottom: `1px solid ${theme.colors.border}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '20px'
-              }}>
-                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                  <div className="hide-mobile" style={{
-                    width: '45px', height: '45px', background: theme.colors.background,
-                    borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.colors.primary
-                  }}>
-                    <FileText size={22} />
-                  </div>
-                  <div>
-                    <h3 style={{ fontWeight: '700', color: theme.colors.text, fontSize: '1rem' }}>{exam.title}</h3>
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '5px', fontSize: '0.8rem', color: theme.colors.textLight }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Calendar size={14} /> {new Date(exam.startTime).toLocaleDateString()}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {exam.questions?.length} Q.</span>
+      {/* Exams Section */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <h3 style={{ fontWeight: '900', fontSize: '1.2rem', color: 'var(--text)', margin: 0 }}>Épreuves actives</h3>
+        
+        {exams.length === 0 ? (
+          <div style={{ padding: '60px', textAlign: 'center', background: 'var(--surface)', borderRadius: '24px', border: '2px dashed var(--border)', color: 'var(--text-light)' }}>
+            Aucune épreuve publiée.
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+            {exams.map((exam) => (
+              <div key={exam._id} style={{ background: 'var(--surface)', padding: '20px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-soft)', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ flex: 1 }}>
+                    <h4 style={{ margin: 0, fontWeight: '800', color: 'var(--text)', fontSize: '1rem' }}>{exam.title}</h4>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '8px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-light)', display: 'flex', alignItems: 'center', gap: '4px' }}><Calendar size={12} /> {new Date(exam.startTime).toLocaleDateString()}</span>
+                      <span style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-light)', display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={12} /> {exam.questions?.length} questions</span>
                     </div>
                   </div>
+                  <button onClick={() => handleDeleteExam(exam._id)} style={{ color: 'var(--error)', background: 'rgba(214, 48, 49, 0.1)', border: 'none', padding: '8px', borderRadius: '10px', cursor: 'pointer' }}><Trash2 size={16} /></button>
                 </div>
-
-                <div style={{ display: 'flex', gap: '10px', width: window.innerWidth < 768 ? '100%' : 'auto' }}>
-                  <button
-                    onClick={() => navigate('/admin/submissions', { state: { examId: exam._id, examTitle: exam.title } })}
-                    style={{
-                      flex: 1, padding: '10px 18px', borderRadius: '8px', background: theme.colors.background,
-                      color: theme.colors.text, fontWeight: '700', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
-                    }}
-                  >
-                    Copies <ChevronRight size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteExam(exam._id)}
-                    style={{
-                      padding: '10px', borderRadius: '8px', background: '#fff0f0', color: theme.colors.error, border: 'none'
-                    }}
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
+                
+                <button
+                  onClick={() => navigate('/admin/submissions', { state: { examId: exam._id, examTitle: exam.title } })}
+                  style={{
+                    background: 'var(--background)', color: 'var(--text)', padding: '12px', borderRadius: '12px', border: '1px solid var(--border)',
+                    fontWeight: '900', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+                  }}
+                >
+                  Consulter les copies <ChevronRight size={16} />
+                </button>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {showCreateModal && (
         <CreateExamModal
           onClose={() => setShowCreateModal(false)}
-          onCreated={() => setShowCreateModal(false)}
+          onCreated={() => { setShowCreateModal(false); fetchData(); }}
         />
       )}
 
       <ConfirmModal
         isOpen={confirmDelete.open}
-        title="Supprimer l'épreuve ?"
-        message="Cette action est irréversible. Toutes les soumissions liées seront également perdues."
+        title="Supprimer ?"
+        message="Cette action est irréversible et supprimera toutes les copies liées."
         onConfirm={handleActualDelete}
         onCancel={() => setConfirmDelete({ open: false, id: null })}
       />

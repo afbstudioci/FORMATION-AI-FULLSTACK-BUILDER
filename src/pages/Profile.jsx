@@ -5,7 +5,7 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } fro
 import api from '../services/api';
 import { theme } from '../theme';
 import { useAuth } from '../context/AuthContext';
-import Alert from '../components/Alert';
+import { useNotification } from '../context/NotificationContext';
 
 const Profile = () => {
   const { user, login, logout } = useAuth();
@@ -13,8 +13,8 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState('');
   const [editForm, setEditForm] = useState({ fullname: '', bio: '' });
+  const { addNotification } = useNotification();
   const fileInputRef = useRef();
 
   const fetchProfile = async () => {
@@ -23,7 +23,7 @@ const Profile = () => {
       setProfileData(data);
       setEditForm({ fullname: data.user.fullname, bio: data.user.bio || '' });
     } catch (err) {
-      setError("Impossible de charger le profil");
+      addNotification("Impossible de charger le profil", 'error');
     } finally {
       setLoading(false);
     }
@@ -44,10 +44,10 @@ const Profile = () => {
     try {
       const { data } = await api.put('/users/profile', formData);
       setProfileData(prev => ({ ...prev, user: data }));
-      // Mettre a jour le contexte auth pour la navbar
       login(data, localStorage.getItem('accessToken'));
+      addNotification("Photo de profil mise à jour", 'success');
     } catch (err) {
-      setError("Erreur lors de l'upload de l'image");
+      addNotification("Erreur lors de l'upload", 'error');
     } finally {
       setUploading(false);
     }
@@ -60,107 +60,106 @@ const Profile = () => {
       setProfileData(prev => ({ ...prev, user: data }));
       setIsEditing(false);
       login(data, localStorage.getItem('accessToken'));
+      addNotification("Profil mis à jour", 'success');
     } catch (err) {
-      setError("Erreur lors de la mise a jour");
+      addNotification("Erreur lors de la mise à jour", 'error');
     }
   };
 
-  if (loading || !profileData) return <div style={{ height: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Activity className="animate-spin" color={theme.colors.primary} size={40} /></div>;
+  if (loading || !profileData) return <div style={{ height: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Activity className="animate-spin" color="var(--primary)" size={40} /></div>;
 
   const isStudent = profileData.user.role === 'student';
 
   return (
-    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '20px' }}>
-      <Alert message={error} onClose={() => setError('')} />
-
+    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '20px' }} className="fade-in">
+      
       {/* Header Profile Premium */}
       <div style={{ position: 'relative', marginBottom: '40px' }}>
-        <div style={{ height: '200px', background: `linear-gradient(45deg, ${theme.colors.primary}, ${theme.colors.secondary})`, borderRadius: theme.borderRadius.large, overflow: 'hidden', position: 'relative' }}>
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.2, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+        <div style={{ height: '180px', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', borderRadius: '24px', overflow: 'hidden', position: 'relative' }}>
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.1, backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
         </div>
         
-        <div className="mobile-stack" style={{ display: 'flex', alignItems: 'flex-end', gap: '20px', padding: '0 20px', marginTop: '-60px', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '20px', padding: '0 20px', marginTop: '-50px', position: 'relative', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div style={{ width: window.innerWidth < 768 ? '120px' : '160px', height: window.innerWidth < 768 ? '120px' : '160px', borderRadius: '30px', border: '6px solid white', overflow: 'hidden', background: '#f5f5f5', boxShadow: theme.shadows.premium }}>
-              {profileData.user.profilePic ? (
-                <img src={profileData.user.profilePic} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.colors.textLight }}>
-                  <UserIcon size={60} />
-                </div>
-              )}
-              {uploading && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Activity className="animate-spin" color="white" /></div>}
+            <div style={{ width: '140px', height: '140px', borderRadius: '32px', border: '6px solid var(--surface)', overflow: 'hidden', background: 'var(--background)', boxShadow: 'var(--shadow-premium)' }}>
+              <img 
+                src={profileData.user.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(profileData.user.fullname)}&background=random&color=fff`} 
+                alt="Profile" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              />
+              {uploading && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Activity className="animate-spin" color="white" /></div>}
             </div>
             <button 
               onClick={() => fileInputRef.current.click()}
-              style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'white', border: 'none', padding: '10px', borderRadius: '15px', boxShadow: theme.shadows.soft, cursor: 'pointer', display: 'flex' }}
+              style={{ position: 'absolute', bottom: '5px', right: '5px', background: 'var(--primary)', border: 'none', padding: '10px', borderRadius: '14px', color: 'white', boxShadow: 'var(--shadow-soft)', cursor: 'pointer', display: 'flex' }}
             >
-              <Camera size={20} color={theme.colors.primary} />
+              <Camera size={18} />
             </button>
             <input type="file" ref={fileInputRef} hidden onChange={handleImageUpload} accept="image/*" />
           </div>
 
-          <div style={{ paddingBottom: '15px', flex: 1, width: '100%' }}>
-            <div className="mobile-stack" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', textAlign: window.innerWidth < 768 ? 'center' : 'left' }}>
-              <div style={{ width: '100%' }}>
-                <h1 style={{ fontWeight: '900', color: theme.colors.text, letterSpacing: '-1px' }}>{profileData.user.fullname}</h1>
-                <p style={{ color: theme.colors.textLight, fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: window.innerWidth < 768 ? 'center' : 'flex-start', gap: '8px' }}>
-                  <Hash size={16} /> {profileData.user.matricule} • <Shield size={16} /> {profileData.user.role.toUpperCase()}
-                </p>
+          <div style={{ flex: 1, minWidth: '250px', paddingBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '15px' }}>
+              <div>
+                <h1 style={{ fontWeight: '900', color: 'var(--text)', fontSize: '1.8rem', margin: 0 }}>{profileData.user.fullname}</h1>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '5px', color: 'var(--text-light)', fontWeight: '700', fontSize: '0.9rem' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Hash size={14} /> {profileData.user.matricule}</span>
+                  <span style={{ width: '4px', height: '4px', background: 'var(--border)', borderRadius: '50%' }} />
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Shield size={14} /> {profileData.user.role.toUpperCase()}</span>
+                </div>
               </div>
               <button 
                 onClick={() => setIsEditing(!isEditing)}
-                style={{ background: isEditing ? theme.colors.error : theme.colors.background, color: isEditing ? 'white' : theme.colors.text, padding: '10px 20px', borderRadius: '12px', border: 'none', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
+                style={{ background: isEditing ? 'var(--error)' : 'var(--surface)', color: isEditing ? 'white' : 'var(--text)', padding: '10px 20px', borderRadius: '14px', border: '1px solid var(--border)', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
               >
-                {isEditing ? <X size={18} /> : <Edit2 size={18} />} {isEditing ? 'Annuler' : 'Editer Profil'}
+                {isEditing ? <X size={18} /> : <Edit2 size={18} />} {isEditing ? 'Annuler' : 'Éditer'}
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 900 ? '1fr' : '1.5fr 1fr', gap: '30px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 900 ? '1fr' : '1.5fr 1fr', gap: '30px' }}>
         
-        {/* Left Column: Stats or Audit */}
+        {/* Left Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
           
           {isEditing ? (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ background: 'white', padding: '30px', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.soft }}>
-              <h2 style={{ fontWeight: '800', marginBottom: '25px' }}>Informations Personnelles</h2>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ background: 'var(--surface)', padding: '30px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-soft)' }}>
+              <h2 style={{ fontWeight: '900', marginBottom: '25px', color: 'var(--text)' }}>Paramètres du Profil</h2>
               <form onSubmit={handleUpdateProfile}>
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontWeight: '700', marginBottom: '8px' }}>Nom Complet</label>
-                  <input type="text" value={editForm.fullname} onChange={e => setEditForm({...editForm, fullname: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${theme.colors.border}`, outline: 'none' }} />
+                  <label style={{ display: 'block', fontWeight: '800', marginBottom: '8px', color: 'var(--text)', fontSize: '0.85rem' }}>NOM COMPLET</label>
+                  <input type="text" value={editForm.fullname} onChange={e => setEditForm({...editForm, fullname: e.target.value})} style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '2px solid var(--border)', outline: 'none', background: 'var(--background)', color: 'var(--text)' }} />
                 </div>
                 <div style={{ marginBottom: '25px' }}>
-                  <label style={{ display: 'block', fontWeight: '700', marginBottom: '8px' }}>Biographie / Objectifs</label>
-                  <textarea value={editForm.bio} onChange={e => setEditForm({...editForm, bio: e.target.value})} placeholder="Parlez-nous de vous..." style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${theme.colors.border}`, outline: 'none', minHeight: '100px' }} />
+                  <label style={{ display: 'block', fontWeight: '800', marginBottom: '8px', color: 'var(--text)', fontSize: '0.85rem' }}>BIOGRAPHIE / BIO</label>
+                  <textarea value={editForm.bio} onChange={e => setEditForm({...editForm, bio: e.target.value})} placeholder="Parlez-nous de vous..." style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '2px solid var(--border)', outline: 'none', background: 'var(--background)', color: 'var(--text)', minHeight: '120px' }} />
                 </div>
-                <button type="submit" style={{ width: '100%', padding: '15px', background: theme.colors.primary, color: 'white', borderRadius: '10px', border: 'none', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                  <Save size={20} /> Enregistrer les modifications
+                <button type="submit" style={{ width: '100%', padding: '16px', background: 'var(--primary)', color: 'white', borderRadius: '12px', border: 'none', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer' }}>
+                  <Save size={20} /> Enregistrer
                 </button>
               </form>
             </motion.div>
           ) : (
             <>
-              {/* Radar Chart Section (Cool Feature 1 - Student) */}
               {isStudent && (
-                <div style={{ background: 'white', padding: '30px', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.soft, height: '450px' }}>
+                <div style={{ background: 'var(--surface)', padding: '30px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-soft)', height: '450px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <h3 style={{ fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px' }}><Zap size={20} color={theme.colors.secondary} /> Radar de Compétences</h3>
-                    <div style={{ fontSize: '0.8rem', color: theme.colors.textLight, padding: '5px 12px', background: theme.colors.background, borderRadius: '20px', fontWeight: '700' }}>Basé sur {profileData.stats.totalExams} examens</div>
+                    <h3 style={{ fontWeight: '900', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text)' }}><Zap size={20} color="var(--secondary)" /> Radar Analytique</h3>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-light)', padding: '6px 14px', background: 'var(--background)', borderRadius: '20px', fontWeight: '800' }}>Basé sur {profileData.stats.totalExams} sessions</div>
                   </div>
                   <div style={{ width: '100%', height: '350px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <RadarChart cx="50%" cy="50%" outerRadius="80%" data={profileData.stats.radar}>
-                        <PolarGrid stroke="#e0e0e0" />
-                        <PolarAngleAxis dataKey="subject" tick={{ fill: theme.colors.textLight, fontSize: 12, fontWeight: 600 }} />
+                        <PolarGrid stroke="var(--border)" />
+                        <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--text-light)', fontSize: 11, fontWeight: 700 }} />
                         <Radar
                           name="Performance"
                           dataKey="A"
-                          stroke={theme.colors.primary}
-                          fill={theme.colors.primary}
-                          fillOpacity={0.4}
+                          stroke="var(--primary)"
+                          fill="var(--primary)"
+                          fillOpacity={0.3}
                         />
                       </RadarChart>
                     </ResponsiveContainer>
@@ -169,20 +168,20 @@ const Profile = () => {
               )}
 
               {!isStudent && (
-                <div style={{ background: 'white', padding: '30px', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.soft }}>
-                  <h3 style={{ fontWeight: '800', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}><Activity size={20} color={theme.colors.primary} /> Journal d'Audit Admin</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div style={{ background: 'var(--surface)', padding: '30px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-soft)' }}>
+                  <h3 style={{ fontWeight: '900', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text)' }}><Activity size={20} color="var(--primary)" /> Journal Système</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {[
-                      { action: 'Connexion securisee etablie', date: 'A l\'instant', icon: <Shield size={16} /> },
-                      { action: 'Mise a jour du systeme effectuee', date: 'Il y a 2h', icon: <Settings size={16} /> },
-                      { action: 'Sauvegarde automatique reussie', date: 'Hier', icon: <Save size={16} /> }
+                      { action: 'Accès sécurisé actif', date: 'Maintenant', icon: <Shield size={16} /> },
+                      { action: 'Module IA opérationnel', date: 'Sync', icon: <Settings size={16} /> },
+                      { action: 'Base de données synchronisée', date: 'OK', icon: <Save size={16} /> }
                     ].map((item, i) => (
-                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '15px', background: theme.colors.background, borderRadius: '12px' }}>
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', background: 'var(--background)', borderRadius: '14px', border: '1px solid var(--border)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ color: theme.colors.primary }}>{item.icon}</div>
-                          <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{item.action}</span>
+                          <div style={{ color: 'var(--primary)' }}>{item.icon}</div>
+                          <span style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--text)' }}>{item.action}</span>
                         </div>
-                        <span style={{ fontSize: '0.8rem', color: theme.colors.textLight }}>{item.date}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-light)', fontWeight: '700' }}>{item.date}</span>
                       </div>
                     ))}
                   </div>
@@ -191,58 +190,56 @@ const Profile = () => {
             </>
           )}
 
-          {/* Badges Section (Cool Feature 2) */}
-          <div style={{ background: 'white', padding: '30px', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.soft }}>
-            <h3 style={{ fontWeight: '800', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}><Award size={20} color={theme.colors.success} /> {isStudent ? 'Mes Trophées' : 'Rôles & Privilèges'}</h3>
-            <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+          <div style={{ background: 'var(--surface)', padding: '30px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-soft)' }}>
+            <h3 style={{ fontWeight: '900', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text)' }}><Award size={20} color="var(--success)" /> Distinction</h3>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {isStudent ? (
                 <>
                   <Badge label="Pionnier" icon={<TrendingUp size={16} />} color="#0984e3" active={true} />
-                  <Badge label="Flash" icon={<Zap size={16} />} color="#fdcb6e" active={profileData.stats.totalExams > 2} />
-                  <Badge label="Invaincu" icon={<Target size={16} />} color="#00b894" active={profileData.stats.averageScore > 80} />
-                  <Badge label="Sérieux" icon={<CheckCircle2 size={16} />} color="#6c5ce7" active={profileData.stats.resilience > 90} />
+                  <Badge label="Expert" icon={<Zap size={16} />} color="#fdcb6e" active={profileData.stats.totalExams > 2} />
+                  <Badge label="Élite" icon={<Target size={16} />} color="#00b894" active={profileData.stats.averageScore > 80} />
                 </>
               ) : (
                 <>
-                  <Badge label="Root Access" icon={<Shield size={16} />} color="#d63031" active={true} />
-                  <Badge label="System Architect" icon={<Settings size={16} />} color="#2d3436" active={true} />
+                  <Badge label="Administrateur" icon={<Shield size={16} />} color="#d63031" active={true} />
+                  <Badge label="Modérateur AI" icon={<Settings size={16} />} color="#2d3436" active={true} />
                 </>
               )}
             </div>
           </div>
         </div>
 
-        {/* Right Column: Key Stats & Info */}
+        {/* Right Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
           
-          <div style={{ background: 'white', padding: '30px', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.soft, textAlign: 'center' }}>
-            <div style={{ fontSize: '0.9rem', fontWeight: '700', color: theme.colors.textLight, textTransform: 'uppercase', marginBottom: '10px' }}>
-              {isStudent ? 'Moyenne Générale' : 'Statut Système'}
+          <div style={{ background: 'var(--surface)', padding: '30px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-soft)', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase', marginBottom: '10px' }}>
+              {isStudent ? 'MOYENNE' : 'ÉTAT SYSTÈME'}
             </div>
             {isStudent ? (
-              <div style={{ fontSize: '4rem', fontWeight: '900', color: theme.colors.primary }}>{profileData.stats.averageScore}<span style={{ fontSize: '1.5rem', opacity: 0.5 }}>%</span></div>
+              <div style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--primary)' }}>{profileData.stats.averageScore}<span style={{ fontSize: '1.2rem', opacity: 0.5 }}>%</span></div>
             ) : (
-              <div style={{ fontSize: '1.5rem', fontWeight: '900', color: theme.colors.success, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                <div style={{ width: '12px', height: '12px', background: theme.colors.success, borderRadius: '50%' }} /> OPERATIONNEL
+              <div style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                <div style={{ width: '10px', height: '10px', background: 'var(--success)', borderRadius: '50%' }} /> EN LIGNE
               </div>
             )}
-            <p style={{ marginTop: '10px', color: theme.colors.textLight, fontSize: '0.9rem' }}>
-              {isStudent ? `Rang actuel : Top ${100 - profileData.stats.precision}%` : 'Dernière maintenance : Aujourd\'hui'}
+            <p style={{ marginTop: '10px', color: 'var(--text-light)', fontSize: '0.85rem', fontWeight: '600' }}>
+              {isStudent ? `Progression : Top ${100 - profileData.stats.precision}%` : 'Dernière vérification : OK'}
             </p>
           </div>
 
-          <div style={{ background: 'white', padding: '30px', borderRadius: theme.borderRadius.large, boxShadow: theme.shadows.soft }}>
-            <h3 style={{ fontWeight: '800', marginBottom: '20px' }}>À propos</h3>
-            <p style={{ color: theme.colors.textLight, lineHeight: '1.6', fontSize: '0.95rem' }}>
-              {profileData.user.bio || "Aucune biographie renseignée. Cliquez sur Editer pour personnaliser votre profil."}
+          <div style={{ background: 'var(--surface)', padding: '30px', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-soft)' }}>
+            <h3 style={{ fontWeight: '900', marginBottom: '20px', color: 'var(--text)', fontSize: '1.1rem' }}>Biographie</h3>
+            <p style={{ color: 'var(--text-light)', lineHeight: '1.6', fontSize: '0.9rem', fontWeight: '500' }}>
+              {profileData.user.bio || "Personnalisez votre bio pour vous démarquer."}
             </p>
-            <div style={{ marginTop: '25px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: theme.colors.textLight }}>
-                <Clock size={18} /> <span>Membre depuis : {new Date(profileData.user.createdAt).toLocaleDateString()}</span>
+            <div style={{ marginTop: '25px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-light)', fontSize: '0.85rem', fontWeight: '600' }}>
+                <Clock size={16} /> <span>Membre depuis le {new Date(profileData.user.createdAt).toLocaleDateString()}</span>
               </div>
               {isStudent && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: theme.colors.textLight }}>
-                  <BookOpen size={18} /> <span>Examens passés : {profileData.stats.totalExams}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-light)', fontSize: '0.85rem', fontWeight: '600' }}>
+                  <BookOpen size={16} /> <span>{profileData.stats.totalExams} Examens complétés</span>
                 </div>
               )}
             </div>
@@ -250,7 +247,7 @@ const Profile = () => {
 
           <button 
             onClick={logout}
-            style={{ width: '100%', padding: '16px', background: '#fff0f0', color: theme.colors.error, border: 'none', borderRadius: '15px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer' }}
+            style={{ width: '100%', padding: '16px', background: 'rgba(214, 48, 49, 0.1)', color: 'var(--error)', border: 'none', borderRadius: '16px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer' }}
           >
             <LogOut size={20} /> Déconnexion
           </button>
@@ -263,15 +260,14 @@ const Profile = () => {
 
 const Badge = ({ label, icon, color, active }) => (
   <div style={{ 
-    display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 15px', borderRadius: '12px',
-    background: active ? `${color}15` : '#f5f5f5',
-    color: active ? color : '#b2bec3',
-    border: `1px solid ${active ? `${color}30` : '#dfe6e9'}`,
+    display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderRadius: '14px',
+    background: active ? `${color}15` : 'var(--background)',
+    color: active ? color : 'var(--text-light)',
+    border: `1px solid ${active ? `${color}30` : 'var(--border)'}`,
     transition: 'all 0.3s ease',
-    opacity: active ? 1 : 0.6,
-    filter: active ? 'none' : 'grayscale(1)'
+    opacity: active ? 1 : 0.6
   }}>
-    {icon} <span style={{ fontWeight: '700', fontSize: '0.85rem' }}>{label}</span>
+    {icon} <span style={{ fontWeight: '800', fontSize: '0.8rem' }}>{label}</span>
   </div>
 );
 

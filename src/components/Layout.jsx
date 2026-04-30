@@ -1,76 +1,92 @@
-import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { LogOut, User, GraduationCap, LayoutDashboard } from 'lucide-react';
-import { theme } from '../theme';
-import { useGlobalSocket } from '../hooks/useGlobalSocket';
-import Alert from './Alert';
+import { useTheme } from '../context/ThemeContext';
+import { useNotification } from '../context/NotificationContext';
+import { LogOut, LayoutDashboard, Sun, Moon, Bell } from 'lucide-react';
 
 const Layout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
+  const { addNotification } = useNotification();
 
-  // Initialisation du hook global pour écouter les événements transverses
-  const { notification, clearNotification } = useGlobalSocket();
+  // Socket notifications
+  useGlobalSocket((msg) => {
+    addNotification(msg, 'success');
+  });
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: theme.colors.background }}>
-
-      {/* Affichage global des notifications pour l'administrateur */}
-      {notification && (
-        <div style={{ position: 'fixed', top: '80px', right: '20px', zIndex: 1000, minWidth: '300px' }}>
-          <Alert message={notification} onClose={clearNotification} type="success" />
-        </div>
-      )}
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--background)' }}>
 
       <nav style={{
-        background: theme.colors.surface,
-        padding: '0.75rem 1rem',
+        background: 'var(--glass)',
+        backdropFilter: 'blur(12px)',
+        padding: '0.6rem 1rem',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        boxShadow: theme.shadows.soft,
+        boxShadow: 'var(--shadow-soft)',
         position: 'sticky',
         top: 0,
-        zIndex: 100,
-        borderBottom: `1px solid ${theme.colors.border}`
+        zIndex: 1000,
+        borderBottom: '1px solid var(--border)'
       }}>
         <div
           onClick={() => navigate('/')}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
         >
           <div style={{
             width: '32px',
             height: '32px',
-            borderRadius: '8px',
+            background: 'var(--primary)',
+            borderRadius: '10px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            overflow: 'hidden'
+            color: 'white',
+            fontWeight: '900',
+            fontSize: '0.8rem'
           }}>
-            <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            AFB
           </div>
-          <h1 style={{ fontSize: '1.1rem', color: theme.colors.text, fontWeight: '900', letterSpacing: '-0.5px' }}>
-            AFB<span style={{ color: theme.colors.primary }}>EXAM</span>
+          <h1 style={{ fontSize: '1rem', color: 'var(--text)', fontWeight: '900', letterSpacing: '-0.5px' }} className="hide-mobile">
+            AFB<span style={{ color: 'var(--primary)' }}>EXAM</span>
           </h1>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          
+          <button
+            onClick={toggleTheme}
+            style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              padding: '8px',
+              borderRadius: '12px',
+              color: 'var(--text)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+          </button>
+
           {user?.role === 'admin' && (
             <button
               onClick={() => navigate('/admin')}
               style={{
-                background: 'transparent',
-                color: theme.colors.primary,
+                background: 'rgba(9, 132, 227, 0.1)',
+                color: 'var(--primary)',
+                padding: '8px 12px',
+                borderRadius: '12px',
                 fontWeight: '700',
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px'
               }}
             >
               <LayoutDashboard size={18} />
-              <span className="hide-mobile">Admin</span>
+              <span className="hide-mobile">Dashboard</span>
             </button>
           )}
 
@@ -80,32 +96,21 @@ const Layout = () => {
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              padding: '4px 8px',
-              background: theme.colors.background,
-              borderRadius: theme.borderRadius.medium,
+              padding: '4px',
+              background: 'var(--surface)',
+              borderRadius: '14px',
+              border: '1px solid var(--border)',
               cursor: 'pointer'
             }}
           >
-            <div style={{
-              width: '30px',
-              height: '30px',
-              borderRadius: '50%',
-              background: theme.colors.secondary,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold',
-              overflow: 'hidden'
-            }}>
-              <img
-                src={user?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullname || 'User')}&background=random&color=fff`}
-                alt="Profile"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-            <div className="hide-mobile" style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: '700', color: theme.colors.text }}>{user?.fullname?.split(' ')[0]}</span>
+            <img
+              src={user?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullname || 'User')}&background=random&color=fff`}
+              alt="Profile"
+              style={{ width: '32px', height: '32px', borderRadius: '10px', objectFit: 'cover' }}
+            />
+            <div className="hide-mobile" style={{ paddingRight: '8px' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text)', display: 'block' }}>{user?.fullname?.split(' ')[0]}</span>
+              <span style={{ fontSize: '0.65rem', color: 'var(--text-light)', fontWeight: '600' }}>{user?.role?.toUpperCase()}</span>
             </div>
           </div>
 
@@ -113,9 +118,10 @@ const Layout = () => {
             onClick={logout}
             style={{
               background: 'rgba(214, 48, 49, 0.1)',
-              color: theme.colors.error,
+              color: 'var(--error)',
               padding: '8px',
-              borderRadius: '8px'
+              borderRadius: '12px',
+              border: 'none'
             }}
           >
             <LogOut size={18} />

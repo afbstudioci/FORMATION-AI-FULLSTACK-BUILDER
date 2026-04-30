@@ -3,27 +3,26 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { UserPlus, User, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
-import { theme } from '../theme';
-import Alert from '../components/Alert';
+import { useNotification } from '../context/NotificationContext';
+import { Loader2 } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({ fullname: '', password: '' });
-  const [info, setInfo] = useState({ message: '', type: 'error' });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [matriculeGenere, setMatriculeGenere] = useState('');
+  const { addNotification } = useNotification();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setInfo({ message: '', type: 'error' });
     try {
       const { data } = await api.post('/auth/register', formData);
       setMatriculeGenere(data.matricule);
-      setInfo({ message: 'Compte cree avec succes !', type: 'success' });
+      addNotification('Compte créé avec succès !', 'success');
     } catch (err) {
-      setInfo({ message: err.response?.data?.message || "Erreur lors de l'inscription", type: 'error' });
+      addNotification(err.response?.data?.message || "Erreur lors de l'inscription", 'error');
     } finally {
       setLoading(false);
     }
@@ -31,53 +30,67 @@ const Register = () => {
 
   return (
     <div style={{ 
-      height: '100vh', 
+      minHeight: '100vh', 
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
-      background: `linear-gradient(135deg, ${theme.colors.secondary} 0%, ${theme.colors.primary} 100%)`,
+      background: 'var(--background)',
       padding: '20px'
     }}>
-      <Alert message={info.message} type={info.type} onClose={() => setInfo({ ...info, message: '' })} />
-
+      
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         style={{
-          background: theme.colors.surface,
-          padding: '40px',
-          borderRadius: theme.borderRadius.large,
-          boxShadow: theme.shadows.premium,
+          background: 'var(--surface)',
+          padding: window.innerWidth < 480 ? '30px 20px' : '40px',
+          borderRadius: '24px',
+          boxShadow: 'var(--shadow-premium)',
           width: '100%',
-          maxWidth: '440px'
+          maxWidth: '440px',
+          position: 'relative',
+          overflow: 'hidden',
+          border: '1px solid var(--border)'
         }}
       >
+        {/* Jauge de chargement premium */}
+        {loading && (
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: 'var(--border)' }}>
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              style={{ height: '100%', background: 'var(--secondary)', boxShadow: '0 0 10px var(--secondary)' }}
+            />
+          </div>
+        )}
+
         {!matriculeGenere ? (
           <>
             <div style={{ textAlign: 'center', marginBottom: '35px' }}>
               <div style={{ 
-                background: theme.colors.secondary, 
+                background: 'var(--secondary)', 
                 width: '60px', 
                 height: '60px', 
-                borderRadius: '15px', 
+                borderRadius: '16px', 
                 margin: '0 auto 15px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: 'white',
-                boxShadow: `0 8px 15px rgba(108, 92, 231, 0.3)`
+                boxShadow: `0 8px 15px rgba(108, 92, 231, 0.1)`
               }}>
                 <UserPlus size={30} />
               </div>
-              <h2 style={{ fontSize: '1.75rem', color: theme.colors.text, fontWeight: '800' }}>Inscription Etudiant</h2>
-              <p style={{ color: theme.colors.textLight, fontSize: '0.9rem', marginTop: '5px' }}>Creez votre compte pour passer vos examens</p>
+              <h2 style={{ fontSize: '1.5rem', color: 'var(--text)', fontWeight: '900' }}>Inscription Étudiant</h2>
+              <p style={{ color: 'var(--text-light)', fontSize: '0.85rem', marginTop: '5px' }}>Créez votre compte pour accéder aux épreuves</p>
             </div>
 
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: '700', color: theme.colors.text }}>Nom Complet</label>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text)' }}>NOM COMPLET</label>
                 <div style={{ position: 'relative' }}>
-                  <User style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: theme.colors.textLight }} size={18} />
+                  <User style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} size={18} />
                   <input 
                     type="text"
                     required
@@ -87,11 +100,11 @@ const Register = () => {
                     style={{
                       width: '100%',
                       padding: '14px 14px 14px 45px',
-                      borderRadius: theme.borderRadius.medium,
-                      border: `2px solid ${theme.colors.border}`,
+                      borderRadius: '12px',
+                      border: '2px solid var(--border)',
                       fontSize: '0.95rem',
-                      color: theme.colors.text,
-                      backgroundColor: theme.colors.background,
+                      color: 'var(--text)',
+                      backgroundColor: 'var(--background)',
                       outline: 'none'
                     }}
                   />
@@ -99,9 +112,9 @@ const Register = () => {
               </div>
 
               <div style={{ marginBottom: '30px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: '700', color: theme.colors.text }}>Mot de passe</label>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.8rem', fontWeight: '800', color: 'var(--text)' }}>MOT DE PASSE</label>
                 <div style={{ position: 'relative' }}>
-                  <Lock style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: theme.colors.textLight }} size={18} />
+                  <Lock style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} size={18} />
                   <input 
                     type={showPassword ? "text" : "password"}
                     required
@@ -111,11 +124,11 @@ const Register = () => {
                     style={{
                       width: '100%',
                       padding: '14px 45px 14px 45px',
-                      borderRadius: theme.borderRadius.medium,
-                      border: `2px solid ${theme.colors.border}`,
+                      borderRadius: '12px',
+                      border: '2px solid var(--border)',
                       fontSize: '0.95rem',
-                      color: theme.colors.text,
-                      backgroundColor: theme.colors.background,
+                      color: 'var(--text)',
+                      backgroundColor: 'var(--background)',
                       outline: 'none'
                     }}
                   />
@@ -129,7 +142,7 @@ const Register = () => {
                       transform: 'translateY(-50%)',
                       background: 'none',
                       border: 'none',
-                      color: theme.colors.textLight,
+                      color: 'var(--text-light)',
                       display: 'flex',
                       alignItems: 'center',
                       cursor: 'pointer',
@@ -147,24 +160,25 @@ const Register = () => {
                 style={{
                   width: '100%',
                   padding: '16px',
-                  background: theme.colors.secondary,
+                  background: 'var(--secondary)',
                   color: 'white',
-                  borderRadius: theme.borderRadius.medium,
-                  fontWeight: '700',
+                  borderRadius: '12px',
+                  fontWeight: '800',
                   fontSize: '1rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '12px',
-                  boxShadow: `0 10px 20px rgba(108, 92, 231, 0.2)`
+                  boxShadow: `0 10px 20px rgba(108, 92, 231, 0.2)`,
+                  opacity: loading ? 0.7 : 1
                 }}
               >
-                {loading ? 'Creation...' : <><ArrowRight size={20} /> Creer mon compte</>}
+                {loading ? <Loader2 className="animate-spin" /> : <><ArrowRight size={20} /> Créer mon compte</>}
               </button>
             </form>
 
-            <p style={{ marginTop: '25px', textAlign: 'center', color: theme.colors.textLight, fontSize: '0.9rem' }}>
-              Deja un compte ? <Link to="/login" style={{ color: theme.colors.secondary, fontWeight: '700', textDecoration: 'none' }}>Se connecter</Link>
+            <p style={{ marginTop: '25px', textAlign: 'center', color: 'var(--text-light)', fontSize: '0.85rem' }}>
+              Déjà un compte ? <Link to="/login" style={{ color: 'var(--secondary)', fontWeight: '800', textDecoration: 'none' }}>Se connecter</Link>
             </p>
           </>
         ) : (
@@ -182,23 +196,23 @@ const Register = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: theme.colors.success
+              color: 'var(--success)'
             }}>
               <CheckCircle2 size={48} />
             </div>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: theme.colors.text, marginBottom: '15px' }}>Inscription Validee !</h3>
-            <p style={{ color: theme.colors.textLight, marginBottom: '25px', lineHeight: '1.5' }}>
-              Veuillez noter precieusement votre <strong>matricule</strong>. Il est indispensable pour vous connecter :
+            <h3 style={{ fontSize: '1.5rem', fontWeight: '900', color: 'var(--text)', marginBottom: '15px' }}>Compte créé !</h3>
+            <p style={{ color: 'var(--text-light)', marginBottom: '25px', lineHeight: '1.5', fontSize: '0.9rem' }}>
+              Veuillez noter précieusement votre <strong>matricule</strong>. Il est indispensable pour vous connecter :
             </p>
             <div style={{ 
-              background: theme.colors.background, 
+              background: 'var(--background)', 
               padding: '20px', 
-              borderRadius: theme.borderRadius.medium, 
+              borderRadius: '12px', 
               fontSize: '1.75rem', 
               fontWeight: '900', 
-              color: theme.colors.primary, 
+              color: 'var(--primary)', 
               letterSpacing: '3px',
-              border: `2px dashed ${theme.colors.primary}`,
+              border: `2px dashed var(--primary)`,
               marginBottom: '35px'
             }}>
               {matriculeGenere}
@@ -208,14 +222,14 @@ const Register = () => {
               style={{
                 width: '100%',
                 padding: '16px',
-                background: theme.colors.primary,
+                background: 'var(--primary)',
                 color: 'white',
-                borderRadius: theme.borderRadius.medium,
-                fontWeight: '700',
+                borderRadius: '12px',
+                fontWeight: '800',
                 fontSize: '1rem'
               }}
             >
-              Aller a la connexion
+              Aller à la connexion
             </button>
           </motion.div>
         )}
