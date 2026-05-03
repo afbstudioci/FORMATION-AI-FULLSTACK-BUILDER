@@ -122,9 +122,24 @@ const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
         </AnimatePresence>
 
         {isLocked && countdown && (
-          <span style={{ fontSize: '0.8rem', fontWeight: '800', color: theme.colors.warning, fontVariantNumeric: 'tabular-nums' }}>
-            {countdown}
-          </span>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              background: `${theme.colors.warning}15`, 
+              padding: '6px 12px', 
+              borderRadius: '12px', 
+              border: `1px solid ${theme.colors.warning}40` 
+            }}
+          >
+            <Clock size={16} color={theme.colors.warning} className="animate-pulse" />
+            <span style={{ fontSize: '1rem', fontWeight: '900', color: theme.colors.warning, fontVariantNumeric: 'tabular-nums', letterSpacing: '1px' }}>
+              {countdown}
+            </span>
+          </motion.div>
         )}
       </div>
 
