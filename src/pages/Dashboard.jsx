@@ -40,7 +40,7 @@ const Dashboard = () => {
         if (prev.some(e => e._id === newExam._id)) return prev;
         return [newExam, ...prev];
       });
-      addNotification("Nouvel examen disponible !", 'info');
+      addNotification("Nouvelle épreuve ajoutée !", 'info');
     });
 
     // Écoute spécifique pour les mises à jour de statut (DÉJÀ COMPOSÉ)
@@ -134,7 +134,7 @@ const Dashboard = () => {
             <ExamCard 
               key={exam._id} 
               exam={exam} 
-              onStart={(id) => navigate(`/exam/${id}`)} 
+              onStart={(id) => navigate(`/dashboard/exam/${id}`)} 
               currentTime={currentTime}
             />
           ))}

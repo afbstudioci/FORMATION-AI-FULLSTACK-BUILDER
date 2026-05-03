@@ -16,6 +16,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
     startTime: new Date(),
     endTime: new Date(Date.now() + 3600000),
     pointsPerQuestion: 2,
+    isPublished: true,
     questions: [{ text: '', options: ['', ''], correctAnswer: '' }]
   });
 

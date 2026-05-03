@@ -60,9 +60,12 @@ const ExamSession = () => {
         const { data } = await api.get(`/exams/${id}`);
         setExam(data);
         setAnswers(data.questions.map(q => ({ questionId: q._id, selectedOption: null })));
+        
+        // Brûler la tentative unique dès que l'étudiant entre
+        await api.post('/submissions/start', { examId: id });
       } catch (err) {
         addNotification(err.response?.data?.message || "Impossible de charger l'examen", 'error');
-        setTimeout(() => navigate('/'), 2000);
+        setTimeout(() => navigate('/dashboard'), 2000);
       } finally {
         setLoading(false);
       }
@@ -113,7 +116,7 @@ const ExamSession = () => {
         status: status
       });
       addNotification(status === 'ABANDONED' ? "Session interrompue." : "Examen soumis avec succès !", status === 'ABANDONED' ? 'error' : 'success');
-      setTimeout(() => navigate('/'), 2000);
+      setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
       addNotification(err.response?.data?.message || "Erreur de soumission", 'error');
       setIsSubmitting(false);

@@ -23,7 +23,7 @@ const InstallPWA = () => {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Pour iOS, on affiche le prompt si non installe
+    // Pour iOS, on affiche le prompt si non installé et pas encore vu
     if (ios && !window.navigator.standalone && !localStorage.getItem('pwaPromptSeen')) {
       const timer = setTimeout(() => setShowPrompt(true), 4000);
       return () => clearTimeout(timer);
