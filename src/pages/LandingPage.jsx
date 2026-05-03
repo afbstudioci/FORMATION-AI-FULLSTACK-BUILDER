@@ -142,30 +142,23 @@ const LandingPage = () => {
 
   const features = [
     { 
-      icon: <Shield size={28} />, 
-      title: "Sécurité Avancée", 
-      desc: "Anticheat intelligent, surveillance temps réel et détection de comportements suspects.",
+      icon: <Zap size={28} />, 
+      title: "Génération par IA", 
+      desc: "Créez des questions pertinentes en quelques secondes. L'IA s'adapte à votre niveau et votre programme.",
       color: "var(--primary)"
     },
     { 
-      icon: <Zap size={28} />, 
-      title: "IA Puissante", 
-      desc: "Générez des épreuves pertinentes en quelques secondes avec notre IA propriétaire.",
+      icon: <Shield size={28} />, 
+      title: "Suivi Intelligent", 
+      desc: "Suivez votre progression en temps réel. Identifiez vos points faibles et améliorez-vous.",
       color: "var(--secondary)"
     },
     { 
       icon: <BarChart3 size={28} />, 
-      title: "Analytics Pro", 
-      desc: "Tableaux de bord détaillés, radar de compétences et suivi personnalisé.",
+      title: "Évaluations Illimitées", 
+      desc: "Practiquez autant que vous voulez. Des milliers de questions pour maîtriser chaque sujet.",
       color: "var(--success)"
     }
-  ];
-
-  const stats = [
-    { value: "15K+", label: "Étudiants", icon: <GraduationCap size={20} /> },
-    { value: "500+", label: "Établissements", icon: <Users size={20} /> },
-    { value: "50K+", label: "Examens", icon: <FileCheck size={20} /> },
-    { value: "99%", label: "Satisfaction", icon: <Sparkles size={20} /> }
   ];
 
   const scrollToFeatures = () => {
@@ -344,7 +337,7 @@ const LandingPage = () => {
               border: '1px solid var(--border)'
             }}>
               <Sparkles size={16} />
-              La nouvelle génération d'examens en ligne
+              Plateforme d'entraînement personnalisée
             </span>
           </motion.div>
 
@@ -353,14 +346,14 @@ const LandingPage = () => {
             lineHeight: 1.1, letterSpacing: '-2px', marginBottom: '28px', 
             color: 'var(--text)'
           }}>
-            L'excellence académique
+            Maîtrisez votre formation
             <br />
             <span style={{ 
               background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               backgroundClip: 'text'
             }}>
-              boostée par l'IA
+              avec l'IA
             </span>
           </motion.h1>
 
@@ -369,8 +362,8 @@ const LandingPage = () => {
             maxWidth: '650px', margin: '0 auto 45px', fontWeight: '500', 
             lineHeight: 1.7
           }}>
-            Créez, surveillez et analysez vos évaluations avec une plateforme sécurisée, 
-            intuitive et propulsée par l'intelligence artificielle.
+            Entraînez-vous avec des questions générées par IA. Suivez votre progression 
+            et préparez-vous efficacement à vos examens.
           </motion.p>
 
           <motion.div variants={itemVariants} style={{ 
@@ -389,7 +382,7 @@ const LandingPage = () => {
                 boxShadow: '0 10px 30px rgba(9, 132, 227, 0.3)'
               }}
             >
-              Créer mon compte gratuit
+              Commencer gratuitement
               <ArrowRight size={22} />
             </motion.button>
             <motion.button
@@ -413,9 +406,9 @@ const LandingPage = () => {
             style={{ display: 'flex', gap: '30px', justifyContent: 'center', flexWrap: 'wrap' }}
           >
             {[
-              { icon: <CheckCircle2 size={20} />, text: "Anticheat intégré", color: "var(--success)" },
-              { icon: <Globe size={20} />, text: "Données sécurisées", color: "var(--primary)" },
-              { icon: <Shield size={20} />, text: "Support 24/7", color: "var(--warning)" }
+              { icon: <Zap size={20} />, text: "Questions illimitées", color: "var(--primary)" },
+              { icon: <BarChart3 size={20} />, text: "Suivi de progression", color: "var(--secondary)" },
+              { icon: <CheckCircle2 size={20} />, text: "Adapté à votre niveau", color: "var(--success)" }
             ].map((badge, i) => (
               <motion.div
                 key={i}
@@ -452,53 +445,6 @@ const LandingPage = () => {
         </motion.div>
       </section>
 
-      {/* Stats Section */}
-      <motion.section 
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8 }}
-        style={{ 
-          padding: '60px 8%', background: 'var(--surface)', 
-          borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)'
-        }}
-      >
-        <div className="stats-grid" style={{ 
-          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '30px', 
-          maxWidth: '1100px', margin: '0 auto'
-        }}>
-          {stats.map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              style={{ textAlign: 'center' }}
-            >
-              <div style={{ 
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: '60px', height: '60px', borderRadius: '16px',
-                background: 'var(--background)', marginBottom: '15px',
-                color: 'var(--primary)'
-              }}>
-                {stat.icon}
-              </div>
-              <div style={{ 
-                fontSize: '2.5rem', fontWeight: '1000', 
-                background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
-              }}>
-                {stat.value}
-              </div>
-              <div style={{ color: 'var(--text-light)', fontWeight: '700', fontSize: '0.95rem' }}>
-                {stat.label}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.section>
-
       {/* Features Section */}
       <section id="features" style={{ padding: '100px 8%', position: 'relative', zIndex: 1 }}>
         <motion.div
@@ -513,20 +459,23 @@ const LandingPage = () => {
             background: 'linear-gradient(135deg, rgba(9, 132, 227, 0.1), rgba(108, 92, 231, 0.1))',
             borderRadius: '50px', fontSize: '0.85rem', fontWeight: '800', 
             color: 'var(--primary)', marginBottom: '20px'
-          }}>
-            Fonctionnalités
+          }}
+          >
+            Pourquoi cette plateforme ?
           </span>
           <h2 style={{ 
             fontWeight: '1000', fontSize: 'clamp(2rem, 5vw, 2.8rem)', 
             marginBottom: '20px', letterSpacing: '-1px', color: 'var(--text)'
-          }}>
-            Tout ce dont vous avez besoin
+          }}
+          >
+            Votre succès, notre priorité
           </h2>
           <p style={{ 
             color: 'var(--text-light)', maxWidth: '600px', margin: '0 auto',
             fontSize: '1.1rem', fontWeight: '500'
-          }}>
-            Une plateforme complète pour gérer vos évaluations de A à Z
+          }}
+          >
+            Des outils adaptés à votre apprentissage pour réussir votre formation
           </p>
         </motion.div>
 
@@ -604,14 +553,16 @@ const LandingPage = () => {
           <h2 style={{ 
             fontWeight: '1000', fontSize: '2.2rem', marginBottom: '20px',
             color: 'var(--text)'
-          }}>
-            Prêt à transformer vos évaluations ?
+          }}
+          >
+            Prêt à progresser ?
           </h2>
           <p style={{ 
             color: 'var(--text-light)', fontSize: '1.15rem', 
             marginBottom: '35px', fontWeight: '500'
-          }}>
-            Rejoignez des milliers d'établissements qui font confiance à AFB Studio
+          }}
+          >
+            Rejoignez la plateforme et atteignez vos objectifs
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
