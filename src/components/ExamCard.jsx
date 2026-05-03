@@ -2,8 +2,10 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, ArrowRight, Lock, CheckCircle2, Sparkles } from 'lucide-react';
 import { theme } from '../theme';
+import { useNotification } from '../context/NotificationContext';
 
 const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
+  const { addNotification } = useNotification();
   const start = new Date(exam.startTime);
   const end = new Date(exam.endTime);
 
@@ -11,8 +13,27 @@ const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
   const isExpired = currentTime > end;
   const isOpen = currentTime >= start && currentTime <= end && !exam.hasSubmitted;
 
-  // Permet d'entrer même si expiré (pour revision) mais pas si déjà soumis
-  const canAccess = !exam.hasSubmitted;
+  // Gestion du clic avec notification si pas encore ouvert
+  const handleClick = () => {
+    if (exam.hasSubmitted) {
+      addNotification("Vous avez déjà composé cet examen", 'info');
+      return;
+    }
+    if (isLocked) {
+      addNotification(`Cet examen ouvre dans ${getCountdown()}`, 'info');
+      return;
+    }
+    onStart(exam._id);
+  };
+
+  const getButtonState = () => {
+    if (exam.hasSubmitted) return { text: 'DÉJÀ COMPOSÉ', icon: <CheckCircle2 size={18} />, bg: theme.colors.success };
+    if (isOpen) return { text: 'COMMENCER', icon: <ArrowRight size={18} />, bg: theme.colors.primary };
+    if (isLocked) return { text: 'EN ATTENTE', icon: <Lock size={18} />, bg: theme.colors.warning };
+    return { text: 'REVOIR', icon: <Clock size={18} />, bg: theme.colors.textLight };
+  };
+
+  const buttonsState = getButtonState();
 
   const getCountdown = () => {
     const diff = start - currentTime;
@@ -43,7 +64,7 @@ const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -8, boxShadow: theme.shadows.large }}
-      onClick={() => canAccess && onStart(exam._id)}
+      onClick={handleClick}
       style={{
         background: theme.colors.surface,
         borderRadius: theme.borderRadius.large,
@@ -56,7 +77,7 @@ const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
         position: 'relative',
         overflow: 'hidden',
         transition: 'all 0.3s ease-in-out',
-        cursor: canAccess ? 'pointer' : 'default'
+        cursor: 'pointer'
       }}
     >
       {/* Glossy overlay for active exams */}
@@ -124,49 +145,28 @@ const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
       </div>
 
       <motion.button
-        whileTap={{ scale: canAccess ? 0.98 : 1 }}
         onClick={(e) => {
           e.stopPropagation();
-          canAccess && onStart(exam._id);
+          handleClick();
         }}
-        disabled={!canAccess}
         style={{
           width: '100%',
           padding: '14px',
-          background: isOpen ? theme.colors.primary : (exam.hasSubmitted && !isOpen ? `${theme.colors.success}10` : theme.colors.background),
-          color: isOpen ? 'white' : (exam.hasSubmitted && !isOpen ? theme.colors.success : theme.colors.textLight),
+          background: `${buttonsState.bg}15`,
+          color: buttonsState.bg,
           borderRadius: theme.borderRadius.medium,
           fontWeight: '900',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: '10px',
-          cursor: canAccess ? 'pointer' : 'not-allowed',
-          border: exam.hasSubmitted ? `1px solid ${theme.colors.success}` : (isOpen ? 'none' : `1px solid ${theme.colors.border}`),
-          boxShadow: isOpen ? `0 8px 20px ${theme.colors.primary}40` : 'none',
+          cursor: 'pointer',
+          border: `1px solid ${buttonsState.bg}`,
           transition: 'all 0.3s ease',
           marginTop: '5px'
         }}
       >
-        <AnimatePresence mode="wait">
-          {exam.hasSubmitted ? (
-            <motion.div key="submitted" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CheckCircle2 size={18} /> DÉJÀ COMPOSÉ
-            </motion.div>
-          ) : isOpen ? (
-            <motion.div key="start" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              COMMENCER <ArrowRight size={18} />
-            </motion.div>
-          ) : isLocked ? (
-            <motion.div key="locked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Lock size={18} /> EN ATTENTE
-            </motion.div>
-          ) : (
-            <motion.div key="expired" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Clock size={18} /> REVOIR
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {buttonsState.icon} {buttonsState.text}
       </motion.button>
     </motion.div>
   );
