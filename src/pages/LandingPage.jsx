@@ -1,7 +1,99 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Shield, Zap, BarChart3, ArrowRight, CheckCircle2, Globe, Trophy, Sparkles, GraduationCap, FileCheck, Users, ChevronDown } from 'lucide-react';
+import { Shield, Zap, BarChart3, ArrowRight, CheckCircle2, Globe, Trophy, Sparkles, GraduationCap, FileCheck, Users, ChevronDown, Menu, X } from 'lucide-react';
+
+const styles = `
+  @media (max-width: 1024px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .mobile-menu-btn {
+      display: block !important;
+    }
+    .nav-buttons {
+      display: none !important;
+    }
+  }
+  @media (max-width: 640px) {
+    .stats-grid {
+      grid-template-columns: 1fr !important;
+      gap: 20px !important;
+    }
+    .nav-buttons {
+      display: none !important;
+    }
+    .mobile-menu-btn {
+      display: block !important;
+    }
+    .hero-section {
+      padding: 100px 5% 60px !important;
+    }
+    .trust-badges {
+      gap: 10px !important;
+    }
+    .trust-badge {
+      padding: 10px 14px !important;
+      font-size: 0.75rem !important;
+    }
+  }
+
+  .hero-section {
+    padding: 120px 8% 80px;
+  }
+  .trust-badges {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: var(--surface);
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  @media (max-width: 768px) {
+    .features-grid {
+      grid-template-columns: 1fr !important;
+      padding: 0 5% !important;
+    }
+    .cta-section {
+      padding: 60px 5% !important;
+    }
+    .cta-box {
+      padding: 30px 20px !important;
+    }
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .cta-section {
+    padding: 100px 8%;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-box {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    background: var(--surface);
+    padding: 60px;
+    border-radius: 32px;
+    border: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+`;
 
 const FloatingParticle = ({ delay, x, y, size }) => (
   <motion.div
@@ -25,6 +117,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const { scrollY } = useScroll();
   const [isVisible, setIsVisible] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const y1 = useTransform(scrollY, [0, 500], [0, 100]);
   const y2 = useTransform(scrollY, [0, 500], [0, -100]);
@@ -80,6 +173,8 @@ const LandingPage = () => {
   };
 
   return (
+    <>
+      <style>{styles}</style>
     <div style={{ background: 'var(--background)', minHeight: '100vh', overflow: 'hidden' }}>
       {/* Animated Background */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
@@ -153,11 +248,23 @@ const LandingPage = () => {
             AFB<span style={{ color: 'var(--primary)' }}>STUDIO</span>
           </span>
         </motion.div>
+
+        <button 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          style={{ 
+            display: 'none', background: 'none', color: 'var(--text)', 
+            padding: '8px', borderRadius: '8px'
+          }}
+          className="mobile-menu-btn"
+        >
+          {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
         
         <motion.div 
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           style={{ display: 'flex', gap: '16px', alignItems: 'center' }}
+          className="nav-buttons"
         >
           <button 
             onClick={() => navigate('/login')}
@@ -181,10 +288,44 @@ const LandingPage = () => {
             Commencer
           </motion.button>
         </motion.div>
+
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              position: 'absolute', top: '100%', left: 0, right: 0,
+              background: 'var(--surface)', padding: '20px 8%',
+              borderBottom: '1px solid var(--border)',
+              display: 'flex', flexDirection: 'column', gap: '15px'
+            }}
+          >
+            <button 
+              onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}
+              style={{ 
+                background: 'none', color: 'var(--text)', fontWeight: '700', 
+                fontSize: '1rem', padding: '12px', borderRadius: '10px',
+                textAlign: 'left'
+              }}
+            >
+              Connexion
+            </button>
+            <button 
+              onClick={() => { navigate('/register'); setMobileMenuOpen(false); }}
+              style={{ 
+                background: 'linear-gradient(135deg, var(--primary), var(--secondary))', 
+                color: 'white', padding: '14px', borderRadius: '12px', 
+                fontWeight: '800', fontSize: '1rem', border: 'none'
+              }}
+            >
+              Commencer
+            </button>
+          </motion.div>
+        )}
       </nav>
 
       {/* Hero Section */}
-      <section style={{ 
+      <section className="hero-section" style={{ 
         minHeight: '100vh', display: 'flex', flexDirection: 'column', 
         justifyContent: 'center', alignItems: 'center', textAlign: 'center', 
         padding: '120px 8% 80px', position: 'relative', zIndex: 1
@@ -268,6 +409,7 @@ const LandingPage = () => {
           {/* Trust Badges */}
           <motion.div 
             variants={itemVariants}
+            className="trust-badges"
             style={{ display: 'flex', gap: '30px', justifyContent: 'center', flexWrap: 'wrap' }}
           >
             {[
@@ -278,6 +420,7 @@ const LandingPage = () => {
               <motion.div
                 key={i}
                 whileHover={{ y: -5 }}
+                className="trust-badge"
                 style={{ 
                   display: 'flex', alignItems: 'center', gap: '10px', 
                   padding: '14px 24px', background: 'var(--surface)', 
@@ -320,7 +463,7 @@ const LandingPage = () => {
           borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)'
         }}
       >
-        <div style={{ 
+        <div className="stats-grid" style={{ 
           display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '30px', 
           maxWidth: '1100px', margin: '0 auto'
         }}>
@@ -387,7 +530,7 @@ const LandingPage = () => {
           </p>
         </motion.div>
 
-        <div style={{ 
+        <div className="features-grid" style={{ 
           display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', 
           gap: '30px', maxWidth: '1200px', margin: '0 auto'
         }}>
@@ -434,7 +577,7 @@ const LandingPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section style={{ 
+      <section className="cta-section" style={{ 
         padding: '100px 8%', position: 'relative', overflow: 'hidden'
       }}>
         <div style={{ 
@@ -446,6 +589,7 @@ const LandingPage = () => {
         }} />
         
         <motion.div
+          className="cta-box"
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -518,6 +662,7 @@ const LandingPage = () => {
         </div>
       </footer>
     </div>
+    </>
   );
 };
 
