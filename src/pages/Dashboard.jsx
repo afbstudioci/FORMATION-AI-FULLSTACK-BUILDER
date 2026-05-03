@@ -131,7 +131,12 @@ const Dashboard = () => {
           gap: '30px'
         }}>
           {filteredExams.map(exam => (
-            <ExamCard key={exam._id} exam={exam} onStart={(id) => navigate(`/exam/${id}`)} />
+            <ExamCard 
+              key={exam._id} 
+              exam={exam} 
+              onStart={(id) => navigate(`/exam/${id}`)} 
+              currentTime={currentTime}
+            />
           ))}
         </div>
       )}
