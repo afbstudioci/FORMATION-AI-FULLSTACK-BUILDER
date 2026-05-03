@@ -7,7 +7,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Ajouter le Access Token aux requetes
+// Ajouter le Access Token aux requêtes
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if (token) {
@@ -16,7 +16,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Variable pour eviter les boucles de rafraichissement infinies
+// Variable pour éviter les boucles de rafraîchissement infinies
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -28,13 +28,13 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Gerer le rafraichissement automatique du token
+// Gérer le rafraîchissement automatique du token
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     
-    // Si erreur 401 et qu'on n'a pas encore retente
+    // Si erreur 401 et qu'on n'a pas encore retenté
     if (error.response?.status === 401 && !originalRequest._retry) {
       
       if (isRefreshing) {
@@ -63,8 +63,8 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         localStorage.removeItem('accessToken');
         
-        // On ne redirige pas si on est en plein examen pour eviter de tout perdre
-        // L'etudiant verra une alerte et pourra tenter de sauvegarder manuellement
+        // On ne redirige pas si on est en plein examen pour éviter de tout perdre
+        // L'étudiant verra une alerte et pourra tenter de sauvegarder manuellement
         if (!window.location.pathname.includes('/exam/')) {
           window.location.href = '/login';
         }

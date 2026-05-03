@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { socket } from '../services/socket';
 import Alert from '../components/Alert';
 import api from '../services/api';
+import PremiumLoader from '../components/PremiumLoader';
 
 const AuthContext = createContext();
 
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children }) => {
         const updatedUser = { ...user, role: data.newRole };
         setUser(updatedUser);
         localStorage.setItem('userData', JSON.stringify(updatedUser));
-        // On pourrait ajouter une notification ici si on avait accès au context, 
+        // On pourrait ajouter une notification ici si on avait accès au contexte, 
         // mais AuthProvider est à l'intérieur de NotificationProvider dans App.jsx, donc on peut !
       }
     };
@@ -65,7 +66,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {!loading && children}
+      {loading ? <PremiumLoader /> : children}
     </AuthContext.Provider>
   );
 };

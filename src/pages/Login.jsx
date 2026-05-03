@@ -70,7 +70,7 @@ const Login = () => {
     try {
       const { data } = await api.post('/auth/login', formData);
       login(data, data.accessToken);
-      navigate(data.role === 'admin' ? '/admin' : '/');
+      navigate(data.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       addNotification(err.response?.data?.message || 'Erreur de connexion', 'error');
     } finally {
@@ -195,7 +195,7 @@ const Login = () => {
               onClick={handleAdminLogin}
               style={{ width: '100%', padding: '16px', background: 'var(--text)', color: 'var(--surface)', borderRadius: '12px', fontWeight: '900' }}
             >
-              INITIALISER L'ACCES
+              INITIALISER L'ACCÈS
             </button>
             <button onClick={() => setEnigmeState(0)} style={{ width: '100%', marginTop: '15px', color: 'var(--text-light)', fontSize: '0.8rem', background: 'none', border: 'none' }}>Abandonner</button>
           </motion.div>

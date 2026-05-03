@@ -38,7 +38,7 @@ const Layout = () => {
         borderBottom: '1px solid var(--border)'
       }}>
         <div
-          onClick={() => navigate('/')}
+          onClick={() => navigate(user?.role === 'admin' ? '/admin' : '/dashboard')}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
         >
           <div style={{

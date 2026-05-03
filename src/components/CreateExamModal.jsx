@@ -168,7 +168,7 @@ const CreateExamModal = ({ onClose, onCreated }) => {
             </div>
             
             <div>
-              <label style={{ display: 'block', fontWeight: '900', marginBottom: '8px', fontSize: '0.7rem', color: 'var(--success)' }}>DEBUT</label>
+              <label style={{ display: 'block', fontWeight: '900', marginBottom: '8px', fontSize: '0.7rem', color: 'var(--success)' }}>DÉBUT</label>
               <DatePicker selected={formData.startTime} onChange={d => setFormData({...formData, startTime: d})} showTimeSelect locale="fr" dateFormat="dd/MM/yyyy HH:mm" className="full-width-input" />
             </div>
             <div>

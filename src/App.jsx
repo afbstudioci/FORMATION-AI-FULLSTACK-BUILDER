@@ -11,10 +11,19 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminSubmissions from './pages/AdminSubmissions';
 import AdminUsers from './pages/AdminUsers';
 import Profile from './pages/Profile';
+import LandingPage from './pages/LandingPage';
 import InstallPWA from './components/InstallPWA';
 import ScrollToTop from './components/ScrollToTop';
 import { ThemeProvider } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
+
+const HomeRedirect = () => {
+  const { user } = useAuth();
+  if (user) {
+    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  }
+  return <LandingPage />;
+};
 
 function App() {
   return (
@@ -24,31 +33,32 @@ function App() {
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ScrollToTop />
             <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          <Route path="/" element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Dashboard />} />
-            <Route path="exam/:id" element={<ExamSession />} />
-            <Route path="profile" element={<Profile />} />
-          </Route>
+              <Route path="/" element={<HomeRedirect />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<Dashboard />} />
+                <Route path="exam/:id" element={<ExamSession />} />
+                <Route path="profile" element={<Profile />} />
+              </Route>
 
-          <Route path="/admin" element={
-            <ProtectedRoute adminOnly>
-              <Layout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<AdminDashboard />} />
-            <Route path="submissions" element={<AdminSubmissions />} />
-            <Route path="users" element={<AdminUsers />} />
-          </Route>
+              <Route path="/admin" element={
+                <ProtectedRoute adminOnly>
+                  <Layout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<AdminDashboard />} />
+                <Route path="submissions" element={<AdminSubmissions />} />
+                <Route path="users" element={<AdminUsers />} />
+              </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
           </BrowserRouter>
           <InstallPWA />
         </AuthProvider>
