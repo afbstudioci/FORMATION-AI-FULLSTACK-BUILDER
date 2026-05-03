@@ -36,6 +36,7 @@ function App() {
               <Route path="/" element={<HomeRedirect />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               
               <Route path="/dashboard" element={
                 <ProtectedRoute>
@@ -44,7 +45,6 @@ function App() {
               }>
                 <Route index element={<Dashboard />} />
                 <Route path="exam/:id" element={<ExamSession />} />
-                <Route path="profile" element={<Profile />} />
               </Route>
 
               <Route path="/admin" element={
