@@ -271,9 +271,9 @@ const LandingPage = () => {
             style={{ display: 'flex', gap: '30px', justifyContent: 'center', flexWrap: 'wrap' }}
           >
             {[
-              { icon: <CheckCircle2 size={20} />, text: "Certifié ISO 27001", color: "var(--success)" },
-              { icon: <Globe size={20} />, text: "Serveurs sécurisés EU", color: "var(--primary)" },
-              { icon: <Trophy size={20} />, text: "Prix Innovation 2024", color: "var(--warning)" }
+              { icon: <CheckCircle2 size={20} />, text: "Anticheat intégré", color: "var(--success)" },
+              { icon: <Globe size={20} />, text: "Données sécurisées", color: "var(--primary)" },
+              { icon: <Shield size={20} />, text: "Support 24/7", color: "var(--warning)" }
             ].map((badge, i) => (
               <motion.div
                 key={i}
