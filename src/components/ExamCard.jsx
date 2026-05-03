@@ -11,6 +11,9 @@ const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
   const isExpired = currentTime > end;
   const isOpen = currentTime >= start && currentTime <= end && !exam.hasSubmitted;
 
+  // Permet d'entrer même si expiré (pour revision) mais pas si déjà soumis
+  const canAccess = !exam.hasSubmitted;
+
   const getCountdown = () => {
     const diff = start - currentTime;
     if (diff <= 0) return null;
@@ -40,7 +43,7 @@ const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -8, boxShadow: theme.shadows.large }}
-      onClick={() => !exam.hasSubmitted && isOpen && onStart(exam._id)}
+      onClick={() => canAccess && onStart(exam._id)}
       style={{
         background: theme.colors.surface,
         borderRadius: theme.borderRadius.large,
@@ -53,8 +56,7 @@ const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
         position: 'relative',
         overflow: 'hidden',
         transition: 'all 0.3s ease-in-out',
-        cursor: isOpen ? 'pointer' : 'default',
-        opacity: isExpired && !exam.hasSubmitted ? 0.7 : 1
+        cursor: canAccess ? 'pointer' : 'default'
       }}
     >
       {/* Glossy overlay for active exams */}
@@ -122,24 +124,24 @@ const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
       </div>
 
       <motion.button
-        whileTap={{ scale: isOpen ? 0.98 : 1 }}
+        whileTap={{ scale: canAccess ? 0.98 : 1 }}
         onClick={(e) => {
           e.stopPropagation();
-          !exam.hasSubmitted && isOpen && onStart(exam._id);
+          canAccess && onStart(exam._id);
         }}
-        disabled={!isOpen && !exam.hasSubmitted}
+        disabled={!canAccess}
         style={{
           width: '100%',
           padding: '14px',
-          background: isOpen ? theme.colors.primary : (exam.hasSubmitted ? `${theme.colors.success}10` : theme.colors.background),
-          color: isOpen ? 'white' : (exam.hasSubmitted ? theme.colors.success : theme.colors.textLight),
+          background: isOpen ? theme.colors.primary : (exam.hasSubmitted && !isOpen ? `${theme.colors.success}10` : theme.colors.background),
+          color: isOpen ? 'white' : (exam.hasSubmitted && !isOpen ? theme.colors.success : theme.colors.textLight),
           borderRadius: theme.borderRadius.medium,
           fontWeight: '900',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: '10px',
-          cursor: isOpen ? 'pointer' : 'not-allowed',
+          cursor: canAccess ? 'pointer' : 'not-allowed',
           border: exam.hasSubmitted ? `1px solid ${theme.colors.success}` : (isOpen ? 'none' : `1px solid ${theme.colors.border}`),
           boxShadow: isOpen ? `0 8px 20px ${theme.colors.primary}40` : 'none',
           transition: 'all 0.3s ease',
@@ -151,17 +153,17 @@ const ExamCard = ({ exam, onStart, currentTime = new Date() }) => {
             <motion.div key="submitted" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <CheckCircle2 size={18} /> DÉJÀ COMPOSÉ
             </motion.div>
+          ) : isOpen ? (
+            <motion.div key="start" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              COMMENCER <ArrowRight size={18} />
+            </motion.div>
           ) : isLocked ? (
             <motion.div key="locked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Lock size={18} /> EN ATTENTE
             </motion.div>
-          ) : isExpired ? (
-            <motion.div key="expired" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              SESSION TERMINÉE
-            </motion.div>
           ) : (
-            <motion.div key="start" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              COMMENCER <ArrowRight size={18} />
+            <motion.div key="expired" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Clock size={18} /> REVOIR
             </motion.div>
           )}
         </AnimatePresence>
