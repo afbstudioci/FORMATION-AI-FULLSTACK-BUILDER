@@ -6,6 +6,7 @@ import SubmissionReview from '../components/SubmissionReview';
 import ConfirmModal from '../components/ConfirmModal';
 import { useNotification } from '../context/NotificationContext';
 import FloatingScrollToTop from '../components/FloatingScrollToTop';
+import { subscribeToSubmissions, socket } from '../services/socket';
 
 const AdminSubmissions = () => {
   const [submissions, setSubmissions] = useState([]);
@@ -34,6 +35,27 @@ const AdminSubmissions = () => {
 
   useEffect(() => {
     fetchSubmissions();
+
+    const handleNewSubmission = (newSub) => {
+      // Si on filtre par épreuve, on ignore les copies des autres épreuves
+      if (examId && newSub.exam?._id !== examId && newSub.exam !== examId) return;
+      
+      setSubmissions(prev => {
+        // Mettre à jour si elle existe déjà (ex: passage IN_PROGRESS à COMPLETED), sinon l'ajouter au début
+        if (prev.some(s => s._id === newSub._id)) {
+          return prev.map(s => s._id === newSub._id ? newSub : s);
+        }
+        return [newSub, ...prev];
+      });
+      // Optionnel: addNotification(`Nouvelle copie : ${newSub.user?.fullname}`, 'info'); 
+      // Le toast est déjà géré globalement par le layout ou adminDashboard si nécessaire.
+    };
+
+    subscribeToSubmissions(handleNewSubmission);
+
+    return () => {
+      socket.off('newSubmission', handleNewSubmission);
+    };
   }, [examId]);
 
   const handleDeleteSubmission = (id) => {
@@ -123,13 +145,19 @@ const AdminSubmissions = () => {
                   </td>
                   <td style={{ padding: '20px', color: 'var(--text-light)', fontWeight: '600', fontFamily: 'monospace' }}>{sub.user?.matricule}</td>
                   <td style={{ padding: '20px' }}>
-                    <span style={{ 
-                      padding: '4px 10px', borderRadius: '8px', fontWeight: '900', fontSize: '0.8rem',
-                      background: sub.score >= (sub.exam?.questions?.length / 2) ? 'rgba(0, 184, 148, 0.1)' : 'rgba(214, 48, 49, 0.1)',
-                      color: sub.score >= (sub.exam?.questions?.length / 2) ? 'var(--success)' : 'var(--error)'
-                    }}>
-                      {sub.score} / {sub.exam?.questions?.length}
-                    </span>
+                    {sub.status === 'IN_PROGRESS' ? (
+                      <span style={{ padding: '4px 10px', borderRadius: '8px', fontWeight: '900', fontSize: '0.75rem', background: 'rgba(253, 203, 110, 0.1)', color: 'var(--warning)' }}>
+                        EN COMPOSITION...
+                      </span>
+                    ) : (
+                      <span style={{ 
+                        padding: '4px 10px', borderRadius: '8px', fontWeight: '900', fontSize: '0.8rem',
+                        background: sub.score >= (sub.exam?.questions?.length / 2) ? 'rgba(0, 184, 148, 0.1)' : 'rgba(214, 48, 49, 0.1)',
+                        color: sub.score >= (sub.exam?.questions?.length / 2) ? 'var(--success)' : 'var(--error)'
+                      }}>
+                        {sub.score} / {sub.exam?.questions?.length}
+                      </span>
+                    )}
                   </td>
                   <td style={{ padding: '20px', color: 'var(--text-light)', fontSize: '0.85rem' }}>
                     {new Date(sub.createdAt).toLocaleDateString()}
@@ -170,9 +198,13 @@ const AdminSubmissions = () => {
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', margin: 0 }}>{sub.user?.matricule}</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontWeight: '900', color: sub.score >= (sub.exam?.questions?.length / 2) ? 'var(--success)' : 'var(--error)', margin: 0 }}>
-                    {sub.score}/{sub.exam?.questions?.length}
-                  </p>
+                  {sub.status === 'IN_PROGRESS' ? (
+                    <p style={{ fontWeight: '900', color: 'var(--warning)', margin: 0, fontSize: '0.8rem' }}>EN COURS</p>
+                  ) : (
+                    <p style={{ fontWeight: '900', color: sub.score >= (sub.exam?.questions?.length / 2) ? 'var(--success)' : 'var(--error)', margin: 0 }}>
+                      {sub.score}/{sub.exam?.questions?.length}
+                    </p>
+                  )}
                   <p style={{ fontSize: '0.7rem', color: 'var(--text-light)', margin: 0 }}>{new Date(sub.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
