@@ -89,8 +89,8 @@ const SubmissionReview = ({ submission, onClose }) => {
   const totalPossible = (submission.exam?.questions?.length || 0) * pointsPerQ;
   
   // Recalcul du score avec pénalités
-  const calculatedScore = submission.answers.reduce((acc, ans) => {
-    const q = submission.exam.questions.find(quest => (quest._id || quest.id) === ans.questionId);
+  const calculatedScore = (submission.answers || []).reduce((acc, ans) => {
+    const q = submission.exam?.questions?.find(quest => (quest._id || quest.id) === ans.questionId);
     if (!q) return acc;
     if (ans.selectedOption === q.correctAnswer) return acc + pointsPerQ;
     if (!ans.selectedOption) return acc; // Vide = 0
@@ -186,8 +186,8 @@ const SubmissionReview = ({ submission, onClose }) => {
             </div>
 
             {/* Questions Blocks */}
-            {submission.exam.questions.map((q, idx) => {
-              const subAnswer = submission.answers.find(a => a.questionId.toString() === (q._id?.toString() || q.id?.toString()));
+            {(submission.exam?.questions || []).map((q, idx) => {
+              const subAnswer = (submission.answers || []).find(a => a.questionId.toString() === (q._id?.toString() || q.id?.toString()));
               const studentChoice = subAnswer?.selectedOption || null;
               const isCorrect = studentChoice === q.correctAnswer;
               
